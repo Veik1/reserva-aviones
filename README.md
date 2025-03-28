@@ -1,4 +1,4 @@
-# TP - Laboratorio de Programación y Lenguajes 2024
+# Trabajo de Campo 2025
 ### Grupo **"Testigos del Bitcoin"**
 
 ### Integrantes:
@@ -11,11 +11,11 @@
 ```
 
 ## Requisitos
-```
-• Node.js (ver. 18 o superior)
-• PostgreSQL (ver. 15 o superior)
-• npm (ver. 9 o superior)
-```
+• [Node.js](https://nodejs.org/en/download)
+
+• [PostgreSQL](https://www.postgresql.org/download/)
+
+• npm
 
 ## Tecnologías que se utilizaron:
 ```
