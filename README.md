@@ -11,15 +11,18 @@
 ```
 
 ## Requisitos
+```
 • Node.js (ver. 18 o superior)
 • PostgreSQL (ver. 15 o superior)
 • npm (ver. 9 o superior)
-
+```
 
 ## Tecnologías que se utilizaron:
+```
 • Backend: Node.js, Express, Sequelize, PostgreSQL
 • Frontend: Vue.js, HTML5, CSS3
 • Herramientas: Nodemon, Morgan
+```
 
 ## Guía de Instalación:
 
