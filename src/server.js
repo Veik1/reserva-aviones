@@ -9,13 +9,14 @@ const app = express();
 app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
+
+app.use(express.static(path.join(__dirname, '../dist')));
 
 const vueloRoutes = require('./api/routes/vueloRoutes');
 app.use('/api/vuelos', vueloRoutes);
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 sequelize.authenticate()
@@ -27,6 +28,7 @@ sequelize.authenticate()
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       console.log(`Servidor corriendo en el puerto ${PORT}`);
+      console.log(`Frontend disponible en http://localhost:${PORT}`);
     });
   })
   .catch(err => {
