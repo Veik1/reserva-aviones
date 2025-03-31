@@ -4,14 +4,13 @@
   "description": "Aplicación de reserva de vuelos",
   "main": "src/server.js",
   "scripts": {
-   "start": "node src/server.js",
+    "start": "node src/server.js",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "server": "nodemon server.js",
     "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
     "prod": "npm run build && npm run server",
-    "client": "npm run serve --prefix client",
     "migrate:create": "sequelize migration:generate --name",
     "migrate:up": "sequelize db:migrate",
     "migrate:down": "sequelize db:migrate:undo",
@@ -19,21 +18,30 @@
     "test": "jest"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "@vueuse/core": "^13.0.0",
+    "bootstrap": "^5.3.3",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.18.2",
-    "express-validator": "^7.0.1",
+    "express-validator": "^7.2.1",
     "morgan": "^1.10.0",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.35.2",
+    "vite-plugin-vuetify": "^2.1.0",
     "vue": "^3.3.4",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "vuetify": "^3.8.0-beta.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",
+    "autoprefixer": "^10.4.21",
     "concurrently": "^8.2.1",
     "nodemon": "^3.0.2",
+    "postcss": "^8.5.3",
     "sequelize-cli": "^6.6.1",
+    "tailwindcss": "^4.0.17",
     "vite": "^6.2.3"
   }
 }

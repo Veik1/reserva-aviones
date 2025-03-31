@@ -1,21 +1,34 @@
+<!-- filepath: c:\Users\marti\OneDrive\Desktop\dev-pers\reserva-aviones\src\App.vue -->
 <template>
-  <div id="app">
-    <h1>Reserva de Aviones</h1>
-    <router-view />
-  </div>
+  <v-app>
+    <!-- Barra de Navegación -->
+    <NavBar />
+
+    <!-- Contenido principal -->
+    <v-main>
+      <router-view />
+    </v-main>
+
+    <!-- Pie de página -->
+    <v-footer app color="grey darken-3" dark>
+      <v-container class="text-center">
+        <p>&copy; 2025 Reserva de Aviones. Todos los derechos reservados.</p>
+      </v-container>
+    </v-footer>
+  </v-app>
 </template>
 
 <script>
+import NavBar from './components/NavBar.vue';
+
 export default {
-  name: 'App'
-}
+  name: 'App',
+  components: {
+    NavBar,
+  },
+};
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+/* Puedes agregar estilos personalizados aquí si es necesario */
 </style>

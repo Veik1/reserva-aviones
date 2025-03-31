@@ -1,38 +1,28 @@
 const express = require('express');
-const morgan = require('morgan');
 const cors = require('cors');
-const path = require('path');
-const { sequelize } = require('./db/models/index');
+const personaRoutes = require('./api/routes/personaRoutes');
+const vueloRoutes = require('./api/routes/vueloRoutes');
+const reservaRoutes = require('./api/routes/reservaRoutes');
+require('dotenv').config();
 
 const app = express();
 
-app.use(morgan('dev'));
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, '../dist')));
-
-const vueloRoutes = require('./api/routes/vueloRoutes');
+// Rutas
+app.use('/api/personas', personaRoutes);
 app.use('/api/vuelos', vueloRoutes);
+app.use('/api/reservas', reservaRoutes);
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+// Middleware para rutas no encontradas
+app.use((req, res, next) => {
+  res.status(404).json({ error: `Ruta no encontrada: ${req.originalUrl}` });
 });
 
-sequelize.authenticate()
-  .then(() => {
-    console.log('Conexión a la base de datos establecida correctamente.');
-    return sequelize.sync();
-  })
-  .then(() => {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-      console.log(`Servidor corriendo en el puerto ${PORT}`);
-      console.log(`Frontend disponible en http://localhost:${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error('No se pudo conectar a la base de datos:', err);
-  });
-
-module.exports = app;
+// Iniciar el servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
