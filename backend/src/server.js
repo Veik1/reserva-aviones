@@ -13,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 // Middlewares
 app.use(cors({
-    origin: 'http://localhost:3000', // Permite solicitudes desde tu frontend
+    origin: ['http://localhost:5173', 'http://localhost:3000'], // Permite solicitudes desde tu frontend
     allowedHeaders: ['Content-Type', 'Authorization'], // Asegúrate de que Authorization esté aquí
 }));
 app.use(express.json());

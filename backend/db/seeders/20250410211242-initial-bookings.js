@@ -11,7 +11,7 @@ module.exports = {
         user_id: 'af120ed4-00fa-43c4-9d7e-01456da4ac20',   // Reemplaza con un ID de usuario existente
         seat: '15B',
         total_price: 150.50,
-        status: 'confirmed',
+        status: 'Confirmado',
         passenger_name: 'Usuario 1',       // Agregar nombre del pasajero
         passenger_last_name: 'Prueba', // Agregar apellido del pasajero
         passenger_email: 'usuario1@example.com', // Agregar email del pasajero
@@ -25,7 +25,7 @@ module.exports = {
         user_id: '4e8368f1-0b21-4cb1-986f-def09560cf90',   // Reemplaza con otro ID de usuario existente
         seat: '22C',
         total_price: 280.20,
-        status: 'pending',
+        status: 'Pendiente',
         passenger_name: 'Usuario 2',      // Agregar nombre del pasajero
         passenger_last_name: 'Prueba', // Agregar apellido del pasajero
         passenger_email: 'usuario2@example.com', // Agregar email del pasajero

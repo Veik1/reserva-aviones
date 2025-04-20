@@ -1,34 +1,45 @@
-<!-- filepath: c:\Users\marti\OneDrive\Desktop\dev-pers\reserva-aviones\src\App.vue -->
 <template>
-  <v-app>
-    <!-- Barra de Navegación -->
-    <NavBar />
-
-    <!-- Contenido principal -->
-    <v-main>
-      <router-view />
-    </v-main>
-
-    <!-- Pie de página -->
-    <v-footer app color="grey darken-3" dark>
-      <v-container class="text-center">
-        <p>&copy; 2025 Reserva de Aviones. Todos los derechos reservados.</p>
-      </v-container>
-    </v-footer>
-  </v-app>
+  <div id="app-layout">
+    <Navbar />
+    <main class="container">
+      <RouterView />
+    </main>
+    <footer class="footer">
+      <!-- Footer content -->
+      <p>© {{ new Date().getFullYear() }} Reserva de Vuelos App</p>
+    </footer>
+  </div>
 </template>
 
-<script>
-import NavBar from './components/NavBar.vue';
-
-export default {
-  name: 'App',
-  components: {
-    NavBar,
-  },
-};
+<script setup>
+import { RouterView } from 'vue-router';
+import Navbar from '@/components/Navbar.vue';
 </script>
 
 <style>
-/* Puedes agregar estilos personalizados aquí si es necesario */
+/* Basic Styling (add to src/assets/main.css or here) */
+#app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.container {
+  flex: 1;
+  /*max-width: 90%;
+  margin: 20px auto;*/
+  padding: 0 20px;
+  width: 100%;
+  margin-top: 20;
+  margin-bottom: 20px;
+}
+
+.footer {
+  background-color: #f1f1f1;
+  padding: 10px;
+  text-align: center;
+  margin-top: auto; /* Push footer to bottom */
+}
+
+/* Add more global styles or use a CSS framework */
 </style>
