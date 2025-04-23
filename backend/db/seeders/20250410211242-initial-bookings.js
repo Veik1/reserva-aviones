@@ -7,11 +7,11 @@ module.exports = {
       {
         id: uuidv4(),
         booking_code: 'BOOK-12345',
-        flight_id: '8906ccb9-30bc-4000-a191-cc7b000b0a93', // Reemplaza con un ID de vuelo existente
-        user_id: 'af120ed4-00fa-43c4-9d7e-01456da4ac20',   // Reemplaza con un ID de usuario existente
+        flight_id: '04d228b8-dd00-43cf-8df8-c65c1db94adb', // Reemplaza con un ID de vuelo existente
+        user_id: '42232c79-985d-4669-aa14-14d8af2604d9',   // Reemplaza con un ID de usuario existente
         seat: '15B',
         total_price: 150.50,
-        status: 'Confirmado',
+        status: 'confirmed',
         passenger_name: 'Usuario 1',       // Agregar nombre del pasajero
         passenger_last_name: 'Prueba', // Agregar apellido del pasajero
         passenger_email: 'usuario1@example.com', // Agregar email del pasajero
@@ -21,11 +21,11 @@ module.exports = {
       {
         id: uuidv4(),
         booking_code: 'BOOK-67890',
-        flight_id: 'bc14d119-ae45-4925-99a1-d1af13a10910', // Reemplaza con otro ID de vuelo existente
-        user_id: '4e8368f1-0b21-4cb1-986f-def09560cf90',   // Reemplaza con otro ID de usuario existente
+        flight_id: '077bb5bf-4ad1-4b6e-b208-566c103d4ca6', // Reemplaza con otro ID de vuelo existente
+        user_id: '42232c79-985d-4669-aa14-14d8af2604d9',   // Reemplaza con otro ID de usuario existente
         seat: '22C',
         total_price: 280.20,
-        status: 'Pendiente',
+        status: 'pending',
         passenger_name: 'Usuario 2',      // Agregar nombre del pasajero
         passenger_last_name: 'Prueba', // Agregar apellido del pasajero
         passenger_email: 'usuario2@example.com', // Agregar email del pasajero

@@ -8,6 +8,7 @@ import FlightDetailsView from '../views/FlightDetailsView.vue';
 import CreateBookingView from '../views/CreateBookingView.vue';
 import AdminFlightsView from '../views/AdminFlightsView.vue';
 import AdminBookingsView from '../views/AdminBookingsView.vue';
+import MyBookingsView from '../views/MyBookingsView.vue'; // Crear este archivo
 import NotFoundView from '../views/NotFoundView.vue';
 
 import { useAuthStore } from '@/store/auth';
@@ -50,7 +51,13 @@ const router = createRouter({
             props: true,
             meta: { requiresAuth: true }, // Must be logged in to book
         },
-        // --- Admin Routes ---
+        {
+            path: '/my-bookings',
+            name: 'my-bookings',
+            component: MyBookingsView,
+            meta: { requiresAuth: true } // Solo usuarios logueados
+        },
+        // --- Admin Routes --- 
         {
             path: '/admin/flights',
             name: 'admin-flights',

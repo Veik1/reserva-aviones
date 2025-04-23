@@ -55,7 +55,7 @@
   
   onMounted(async () => {
     if (!flightId.value) {
-        error.value = "No Flight ID provided.";
+        error.value = "No se proporcionó identificación del vuelo.";
         loading.value = false;
         return;
     }
@@ -65,11 +65,11 @@
       const response = await fetchFlightById(flightId.value);
       flight.value = response.data;
     } catch (err) {
-      console.error(`Failed to fetch flight ${flightId.value}:`, err);
+      console.error(`No se pudo obtener el vuelo ${flightId.value}:`, err);
       if (err.response && err.response.status === 404) {
-          error.value = 'Flight not found.';
+          error.value = 'Vuelo no encontrado.';
       } else {
-          error.value = 'Could not load flight details. Please try again later.';
+          error.value = 'No se pudieron cargar los detalles del vuelo. Inténtalo de nuevo más tarde.';
       }
       flight.value = null;
     } finally {

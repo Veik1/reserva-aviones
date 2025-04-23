@@ -6,6 +6,12 @@
     <div class="navbar-menu">
       <div class="navbar-start">
         <router-link to="/flights" class="navbar-item">Vuelos</router-link>
+        <router-link
+          v-if="authStore.isAuthenticated && !authStore.isAdmin"
+          to="/my-bookings"
+          class="navbar-item">
+          Mis Reservas
+        </router-link>
         <router-link v-if="authStore.isAdmin" to="/admin/flights" class="navbar-item">Gestionar Vuelos</router-link>
         <router-link v-if="authStore.isAdmin" to="/admin/bookings" class="navbar-item">Gestionar Reservas</router-link>
         <!-- Add My Bookings link here if implementing -->

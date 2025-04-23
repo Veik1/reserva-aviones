@@ -11,9 +11,10 @@ console.log('bookingController.getBookings:', typeof bookingController.getBookin
 
 // Ruta protegida para administradores para obtener todas las reservas
 router.get('/', verifyToken, authorizeRole('admin'), bookingController.getBookings);
+router.get('/my', verifyToken, bookingController.getMyBookings);
 router.post('/', verifyToken, bookingController.createBooking);
-router.get('/:id', bookingController.getBookingById);
-router.put('/:id', bookingController.updateBooking);
-router.delete('/:id', verifyToken, authorizeRole('admin'), bookingController.deleteBooking); // Protege la eliminación también
+router.get('/:id', verifyToken, bookingController.getBookingById);
+router.put('/:id', verifyToken, bookingController.updateBooking);
+router.delete('/:id', verifyToken, bookingController.deleteBooking); // Protege la eliminación también
 
 module.exports = router;

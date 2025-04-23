@@ -33,11 +33,11 @@ const authStore = useAuthStore();
 
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
     try {
-         return new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
+         return new Intl.DateTimeFormat('es-ES', options).format(new Date(dateString));
     } catch (e) {
-        console.error("Error formatting date:", dateString, e);
+        console.error("Error al formatear la fecha:", dateString, e);
         return dateString; // Fallback
     }
 };

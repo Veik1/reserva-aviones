@@ -28,8 +28,8 @@ onMounted(async () => {
     const response = await fetchFlights();
     flights.value = response.data;
   } catch (err) {
-    console.error("Failed to fetch flights:", err);
-    error.value = 'Could not load flights. Please try again later.';
+    console.error("No se pudieron obtener los vuelos:", err);
+    error.value = 'No se pudieron cargar los vuelos. Inténtalo de nuevo más tarde.';
   } finally {
     loading.value = false;
   }

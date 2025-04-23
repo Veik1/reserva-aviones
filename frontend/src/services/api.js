@@ -62,6 +62,9 @@ export const deleteFlight = (id) => apiClient.delete(`/flights/${id}`); // Needs
 // --- Booking Service ---
 export const createBooking = (bookingData) => apiClient.post('/bookings', bookingData); // Needs user/admin token
 export const fetchBookings = () => apiClient.get('/bookings'); // Needs admin token
+// --- NUEVA FUNCIÓN ---
+export const fetchMyBookings = () => apiClient.get('/bookings/my'); // Para usuario logueado
+
 export const fetchBookingById = (id) => apiClient.get(`/bookings/${id}`); // Needs user/admin token
 export const updateBooking = (id, bookingData) => apiClient.put(`/bookings/${id}`, bookingData); // Needs user/admin token
 export const deleteBooking = (id) => apiClient.delete(`/bookings/${id}`); // Needs admin token

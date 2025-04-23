@@ -79,8 +79,8 @@ const loadFlights = async () => {
         const response = await api.fetchFlights();
         flights.value = response.data;
     } catch (err) {
-        console.error("Failed to fetch flights:", err);
-        error.value = 'Could not load flights.';
+        console.error("No se pudieron obtener los vuelos:", err);
+        error.value = 'No se pudieron cargar los vuelos.';
     } finally {
         loading.value = false;
     }
@@ -101,39 +101,39 @@ const handleFormSubmit = async (flightData) => {
 
     // Basic date validation example (ensure dates are valid)
     if (new Date(flightData.departure_time) >= new Date(flightData.arrival_time)) {
-         error.value = "Arrival time must be after departure time.";
+         error.value = "La hora de llegada debe ser después de la hora de salida.";
          return;
      }
 
     try {
         if (isEditing && flightId) {
             await api.updateFlight(flightId, flightData);
-            success.value = 'Flight updated successfully!';
+            success.value = '¡Vuelo actualizado con éxito!';
         } else {
             await api.createFlight(flightData);
-            success.value = 'Flight created successfully!';
+            success.value = '¡Vuelo creado con éxito!';
         }
         // Reset form state and reload flights
         editingFlight.value = null;
         showCreateForm.value = false;
         await loadFlights();
     } catch (err) {
-         console.error(`Failed to ${isEditing ? 'update' : 'create'} flight:`, err.response?.data || err);
-         error.value = err.response?.data?.error || `Failed to ${isEditing ? 'update' : 'create'} flight.`;
+         console.error(`No se pudo ${isEditing ? 'actualizar' : 'crear'} el vuelo:`, err.response?.data || err);
+         error.value = err.response?.data?.error || `No se pudo ${isEditing ? 'actualizar' : 'crear'} el vuelo.`;
     }
 };
 
 const confirmDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this flight? This action cannot be undone.')) {
+    if (window.confirm('¿Seguro que quieres eliminar este vuelo? Esta acción no se puede deshacer.')) {
         error.value = '';
         success.value = '';
         try {
             await api.deleteFlight(id);
-            success.value = 'Flight deleted successfully!';
+            success.value = '¡Vuelo eliminado con éxito!';
             await loadFlights(); // Refresh the list
         } catch (err) {
-             console.error("Failed to delete flight:", err.response?.data || err);
-             error.value = err.response?.data?.message || 'Failed to delete flight.';
+             console.error("No se pudo eliminar el vuelo:", err.response?.data || err);
+             error.value = err.response?.data?.message || 'No se pudo eliminar el vuelo.';
         }
     }
 };
