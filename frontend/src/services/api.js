@@ -17,10 +17,13 @@ apiClient.interceptors.request.use(
     (config) => {
         const authStore = useAuthStore();
         const token = authStore.token;
+        console.log(`[Interceptor] Petición a ${config.url}. Método: ${config.method}. ¿Token existe?: ${!!token}`); // <-- LOG DETALLADO
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
+            console.log('[Interceptor] Token añadido a la cabecera.'); // <-- CONFIRMACIÓN
+        } else {
+            console.warn('[Interceptor] No se encontró token para añadir.'); // <-- ADVERTENCIA
         }
-        // console.log('Sending request:', config); // Debugging requests
         return config;
     },
     (error) => {

@@ -36,6 +36,13 @@ const { DataTypes } = require('sequelize');
   price: {
   type: DataTypes.DECIMAL(10, 2),
   allowNull: false
+  },
+  image_url: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      isUrl: true // Opcional: añadir validación de URL
+    }
   }
   }, {
   tableName: 'Flights',

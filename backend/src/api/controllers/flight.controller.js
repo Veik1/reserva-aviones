@@ -28,7 +28,8 @@ exports.getFlightById = async (req, res) => {
 exports.createFlight = async (req, res) => {
   try {
     const db = await getDb(); // Obtener la instancia de db
-    const flight = await db.Flight.create(req.body);
+    const flightData = { ...req.body};
+    const flight = await db.Flight.create(flightData); // Usa db.Flight
     res.status(201).json(flight);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -37,7 +38,8 @@ exports.createFlight = async (req, res) => {
 exports.updateFlight = async (req, res) => {
   try {
     const db = await getDb();
-    const [updated] = await db.Flight.update(req.body, { // Usa db.Flight
+    const updateData = { ...req.body };
+    const [updated] = await db.Flight.update(updateData, { // Usa db.Flight
       where: { id: req.params.id }
     });
     if (updated) {

@@ -34,7 +34,7 @@
           </td>
           <td>{{ booking.seat }}</td>
           <td>
-              <span :class="`status-${booking.status?.toLowerCase()}`">{{ booking.status }}</span>
+              <span :class="`status-${booking.status?.toLowerCase()}`">{{ formatBookingStatus(booking.status) }}</span>
           </td>
           <td>${{ parseFloat(booking.total_price).toFixed(2) }}</td>
           <td>{{ formatDate(booking.created_at) }}</td> <!-- Usar la fecha de creación de la reserva -->
@@ -55,7 +55,7 @@ import { ref, onMounted } from 'vue'; // Eliminado computed si no se usa para ed
 import * as api from '@/services/api'; // Mantenemos todas las importaciones de api
 // Eliminada la importación de FlightForm ya que no se usa
 import AlertMessage from '@/components/AlertMessage.vue';
-import { formatDate } from '@/utils/formatters'; // Asegúrate que este archivo exista y funcione
+import { formatDate,formatBookingStatus } from '@/utils/formatters'; // Asegúrate que este archivo exista y funcione
 
 // Cambiamos los nombres de las refs para claridad
 const bookings = ref([]);

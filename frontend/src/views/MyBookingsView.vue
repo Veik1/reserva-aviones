@@ -5,45 +5,94 @@
       <AlertMessage v-if="success" type="success" :message="success" />
   
       <div v-if="loading" class="loading">Cargando tus reservas...</div>
-      <div v-else-if="bookings.length > 0">
-        <div class="booking-list">
-          <div v-for="booking in bookings" :key="booking.id" class="booking-card">
-            <div class="card-header">
-                <span class="booking-code">Código: {{ booking.booking_code }}</span>
-                <span :class="`status status-${booking.status?.toLowerCase()}`">{{ booking.status }}</span>
+  
+      <!-- Cambiamos el contenedor para que se parezca a la vista de detalles -->
+      <div v-else-if="bookings.length > 0" class="booking-list-container">
+        <!-- Iteramos sobre las reservas para crear tarjetas individuales -->
+        <div v-for="booking in bookings" :key="booking.id" class="booking-details-card">
+  
+          <!-- Imagen de Cabecera (del Vuelo) -->
+          <div class="flight-image-wrapper" v-if="booking.flight?.image_url">
+            <img :src="booking.flight.image_url" :alt="'Imagen del vuelo ' + (booking.flight?.flight_number || '')" class="flight-image-details">
+          </div>
+          <div class="flight-image-placeholder" v-else>
+             <span>✈️</span>
+          </div>
+  
+          <!-- Encabezado de la Reserva -->
+          <div class="details-header">
+             <!-- Mostramos Código y Estado aquí -->
+             <span class="booking-code-header">Reserva: {{ booking.booking_code }}</span>
+             <span :class="`status status-${booking.status?.toLowerCase()}`">{{ formatBookingStatus(booking.status) }}</span>
+          </div>
+  
+          <!-- Cuerpo con Información -->
+          <div class="details-body">
+            <h3>Información del Vuelo</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Vuelo</span>
+                <span class="info-value">{{ booking.flight?.flight_number || 'N/A' }}</span>
+              </div>
+               <div class="info-item"> <!-- Ruta combinada -->
+                <span class="info-label">Ruta</span>
+                <span class="info-value">{{ booking.flight?.origin || 'N/A' }} → {{ booking.flight?.destination || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Salida</span>
+                <span class="info-value">{{ formatDate(booking.flight?.departure_time) }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Llegada</span>
+                <span class="info-value">{{ formatDate(booking.flight?.arrival_time) }}</span>
+              </div>
             </div>
-            <div class="card-body">
-                <p><strong>Vuelo:</strong> {{ booking.flight?.flight_number || 'N/A' }}</p>
-                <p><strong>Ruta:</strong> {{ booking.flight?.origin || 'N/A' }} → {{ booking.flight?.destination || 'N/A' }}</p>
-                <p><strong>Salida:</strong> {{ formatDate(booking.flight?.departure_time) }}</p>
-                <p><strong>Llegada:</strong> {{ formatDate(booking.flight?.arrival_time) }}</p>
-                <p><strong>Asiento:</strong> {{ booking.seat }}</p>
-                <p><strong>Pasajero:</strong> {{ booking.passenger_name }} {{ booking.passenger_last_name }}</p>
-                <p><strong>Precio Pagado:</strong> ${{ parseFloat(booking.total_price).toFixed(2) }}</p>
-                <p><strong>Reservado el:</strong> {{ formatDate(booking.createdAt, { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
-            </div>
-            <div class="card-actions">
-               <!-- Mostrar botón solo si la reserva NO está cancelada -->
-               <button
-                  v-if="booking.status?.toLowerCase() !== 'canceled'"
-                  @click="confirmCancelBooking(booking.id)"
-                  class="button is-small is-danger">
-                  Cancelar Reserva
-               </button>
-               <span v-else class="status-canceled-text">Reserva Cancelada</span>
+  
+            <h3 class="section-divider">Detalles de la Reserva</h3>
+            <div class="info-grid">
+               <div class="info-item">
+                <span class="info-label">Asiento</span>
+                <span class="info-value">{{ booking.seat }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Pasajero</span>
+                <span class="info-value">{{ booking.passenger_name }} {{ booking.passenger_last_name }}</span>
+              </div>
+               <div class="info-item">
+                <span class="info-label">Precio Pagado</span>
+                <span class="info-value price">${{ parseFloat(booking.total_price).toFixed(2) }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Reservado el</span>
+                <span class="info-value">{{ formatDate(booking.createdAt, { year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
+              </div>
             </div>
           </div>
+  
+          <!-- Acciones -->
+          <div class="details-actions">
+             <button
+                v-if="booking.status?.toLowerCase() !== 'canceled' && booking.status?.toLowerCase() !== 'cancelado'"
+                @click="confirmCancelBooking(booking.id)"
+                class="button action-button is-danger">
+                Cancelar Reserva
+             </button>
+             <span v-else class="status-canceled-text">Reserva Cancelada</span>
+          </div>
+  
         </div>
       </div>
+  
       <p v-else class="no-bookings">No tienes ninguna reserva activa o pasada.</p>
     </div>
-</template>
+  </template>
   
   <script setup>
+  // --- El script setup NO cambia ---
   import { ref, onMounted } from 'vue';
   import * as api from '@/services/api';
   import AlertMessage from '@/components/AlertMessage.vue';
-  import { formatDate } from '@/utils/formatters';
+  import { formatDate, formatBookingStatus } from '@/utils/formatters';
   
   const bookings = ref([]);
   const loading = ref(true);
@@ -53,20 +102,20 @@
   const loadMyBookings = async () => {
       loading.value = true;
       error.value = '';
-      success.value = ''; // Clear success messages on reload
+      success.value = '';
       try {
-          const response = await api.fetchMyBookings(); // Usa la nueva función API
+          const response = await api.fetchMyBookings();
           if (response && response.data && Array.isArray(response.data)) {
              bookings.value = response.data;
           } else {
-             console.warn("La respuesta de fetchMyBookings no es un array válido:", response);
+             console.warn("Respuesta no válida de fetchMyBookings:", response);
              bookings.value = [];
              error.value = 'Formato de respuesta inesperado.';
           }
       } catch (err) {
-          console.error("No se pudieron recuperar mis reservas:", err);
+          console.error("Error al recuperar mis reservas:", err);
            if (err.response && err.response.status === 401) {
-               error.value = 'Por favor, inicia sesión para ver tus reservas.';
+               error.value = 'Por favor, inicia sesión.';
            } else {
                error.value = 'No se pudieron cargar tus reservas.';
            }
@@ -79,112 +128,143 @@
   onMounted(loadMyBookings);
   
   const confirmCancelBooking = async (id) => {
-      // Opcional: Añadir una verificación más específica (ej. ¿Seguro que quieres cancelar la reserva XYZ?)
       if (window.confirm('¿Estás seguro de que quieres cancelar esta reserva?')) {
           error.value = '';
           success.value = '';
           try {
-              // Llama a deleteBooking (que ahora debería permitir al dueño borrarla)
               await api.deleteBooking(id);
               success.value = 'Reserva cancelada correctamente.';
-              // Recarga la lista para reflejar el cambio (o actualiza el estado localmente)
               await loadMyBookings();
           } catch (err) {
-               console.error("No se pudo cancelar la reserva:", err.response?.data || err);
+               console.error("Error al cancelar reserva:", err.response?.data || err);
                if (err.response && err.response.status === 403) {
-                   error.value = 'No tienes permiso para cancelar esta reserva.';
+                   error.value = 'No tienes permiso.';
                } else {
-                   error.value = err.response?.data?.message || 'Error al cancelar la reserva.';
+                   error.value = err.response?.data?.message || 'Error al cancelar.';
                }
           }
       }
   };
   </script>
   
+  <!-- *** REEMPLAZA COMPLETAMENTE LA SECCIÓN <style scoped> *** -->
   <style scoped>
+  /* Contenedor principal de la vista */
   .my-bookings-view {
-    max-width: 900px;
+    max-width: 1000px; /* Ancho máximo general, ajusta si es necesario */
     margin: 30px auto;
-    padding: 20px;
+    padding: 0 15px; /* Padding lateral */
   }
-  h2 {
+  h2 { /* Título "Mis Reservas" */
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 30px;
       color: #333;
+      font-weight: 600;
   }
   .loading, .no-bookings {
       text-align: center;
-      padding: 40px;
+      padding: 50px;
       font-style: italic;
       color: #666;
   }
-  .booking-list {
+  
+  /* Contenedor de la lista de tarjetas */
+  .booking-list-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-      gap: 25px; /* Aumenta un poco el espacio entre tarjetas */
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Columnas responsivas */
+      gap: 25px; /* Espacio entre tarjetas */
   }
-  .booking-card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background-color: #fff;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      overflow: hidden; /* Para contener bordes internos */
-      display: flex; /* Usa flexbox para la estructura interna de la tarjeta */
-      flex-direction: column; /* Apila header, body, actions verticalmente */
+  
+  /* Estilos para cada tarjeta de reserva individual (similar a FlightDetailsView) */
+  .booking-details-card {
+    background-color: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.07);
+    overflow: hidden;
+    margin-bottom: 5px; /* Pequeño margen inferior adicional */
   }
-  .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #f7f7f7;
-      padding: 10px 15px;
-      border-bottom: 1px solid #eee;
+  
+  /* Imagen */
+  .flight-image-wrapper {
+    width: 100%;
+    height: 200px; /* Altura consistente para la imagen */
+    overflow: hidden;
   }
-  .booking-code {
-      font-weight: bold;
-      font-size: 0.95em;
-      color: #555;
+  .flight-image-details {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
-  .status {
-      font-weight: bold;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 0.85em;
-      text-transform: capitalize;
+  .flight-image-placeholder {
+      width: 100%;
+      height: 200px;
+      display: flex; align-items: center; justify-content: center;
+      background-color: #f0f0f0; font-size: 3em; color: #ccc;
   }
+  
+  /* Encabezado de la Reserva */
+  .details-header {
+    padding: 15px 20px; /* Padding ajustado */
+    border-bottom: 1px solid #eee;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .booking-code-header {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #444;
+  }
+  /* Estilos de Status (ya existentes) */
+  .status { font-weight: bold; padding: 4px 9px; border-radius: 5px; font-size: 0.8em; }
   .status-confirmed { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;}
   .status-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;}
   .status-canceled { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; text-decoration: line-through;}
   
-  .card-body {
-      padding: 15px;
-      font-size: 0.95em;
-      flex-grow: 1; /* Permite que esta sección crezca */
+  /* Cuerpo con Información */
+  .details-body {
+    padding: 20px; /* Padding interno */
   }
-  .card-body p {
-      margin: 0 0 8px 0;
-      color: #444;
+  .details-body h3 { /* "Información del Vuelo", "Detalles de la Reserva" */
+    font-size: 1.15em;
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eaeaea;
   }
-   .card-body p:last-child {
-      margin-bottom: 0;
-  }
-  .card-body strong {
-      color: #111;
-      min-width: 110px;
-      display: inline-block;
-  }
-  .card-actions {
-      padding: 10px 15px;
-      text-align: right;
-      border-top: 1px solid #eee;
-      background-color: #fdfdfd;
-  }
-  .button.is-danger { background-color: #e74c3c; color: white; border: none;}
-  .button.is-danger:hover { background-color: #c0392b; }
-  .status-canceled-text {
-       font-style: italic;
-       color: #721c24;
-       font-size: 0.9em;
+  .details-body h3.section-divider {
+      margin-top: 25px; /* Espacio antes de la segunda sección */
   }
   
-</style>
+  /* Grid para la información */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Columnas responsivas */
+    gap: 15px 20px;
+  }
+  .info-item { display: flex; flex-direction: column; }
+  .info-label { font-size: 0.8em; color: #888; margin-bottom: 3px; text-transform: uppercase; }
+  .info-value { font-size: 1em; color: #2c3e50; font-weight: 500; }
+  .info-value.price { font-weight: bold; color: #27ae60; }
+  
+  /* Acciones */
+  .details-actions {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    background-color: #f9f9f9;
+    text-align: right; /* Botón a la derecha */
+  }
+  .action-button { /* Estilo base para botones de acción */
+    padding: 8px 18px; border: none; border-radius: 5px; cursor: pointer;
+    text-decoration: none; font-size: 0.9em; font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+  }
+  .action-button:hover { opacity: 0.9; transform: translateY(-1px); }
+  .button.is-danger { background-color: #e74c3c; color: white; }
+  .status-canceled-text { font-style: italic; color: #721c24; font-size: 0.9em; }
+  
+  </style>

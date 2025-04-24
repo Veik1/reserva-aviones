@@ -53,10 +53,17 @@ const bookingData = reactive({
   passenger_last_name: '',
   passenger_email: '',
   booking_code: '', // Consider auto-generating or letting user input
-  total_price: 0, // Will be set by form/flight price
-  status: 'Confirmado' // Default or set based on payment flow
+  total_price: 0, // Will be set by form/flight price// Default or set based on payment flow
 });
 
+const formatBookingStatus = (status) => {
+  if (!status) return '';
+  const lowerStatus = status.toLowerCase(); // Usa los valores de la DB: confirmed, pending, canceled
+  if (lowerStatus === 'confirmed') return 'Confirmado';
+  if (lowerStatus === 'pending') return 'Pendiente';
+  if (lowerStatus === 'canceled') return 'Cancelado';
+  return status; // Devuelve el original si no coincide
+}
 // ---> AÑADE ESTA FUNCIÓN <---
 const handleBookingDataUpdate = (newValue) => {
   console.log('[CreateBookingView] Recibido evento update:bookingData con:', JSON.parse(JSON.stringify(newValue)));

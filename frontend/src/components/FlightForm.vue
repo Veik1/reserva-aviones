@@ -1,6 +1,7 @@
 <template>
   <form @submit.prevent="submitForm" class="flight-form">
     <div class="form-grid">
+
       <div class="form-group">
         <label for="flight_number">Número de vuelo:</label>
         <input type="text" id="flight_number" v-model="formData.flight_number" required>
@@ -29,6 +30,11 @@
         <label for="price">Precio ($):</label>
         <input type="number" id="price" v-model.number="formData.price" required min="0" step="0.01">
       </div>
+      <div class="form-group full-width">
+        <label for="image_url">URL de la Imagen (Opcional):</label>
+        <input type="url" id="image_url" v-model="formData.image_url" 
+        placeholder="https://ejemplo.com/imagen.jpg">
+      </div>
     </div>
     <button type="submit">{{ isEditing ? 'Actualizar vuelo' : 'Crear vuelo' }}</button>
     <button type="button" @click="cancel" v-if="isEditing" class="button is-light">Cancelar Edición</button>
@@ -49,6 +55,7 @@ const props = defineProps({
             arrival_time: '',
             seats_available: 100,
             price: 0,
+            image_url:'',
         })
     }
 });
@@ -79,6 +86,7 @@ watch(() => props.initialData, (newData) => {
         // Format dates for the input type=datetime-local
         departure_time: formatDateTimeLocal(newData.departure_time),
         arrival_time: formatDateTimeLocal(newData.arrival_time),
+        image_url: newData.image_url || '',
     };
 }, { deep: true, immediate: true }); // immediate ensures it runs on initial load
 
@@ -113,6 +121,7 @@ const cancel = () => {
     gap: 15px;
     margin-bottom: 15px;
 }
+/*.form.group.full-width{grid-column: 1 / -1;}*/
 .form-group { display: flex; flex-direction: column; }
 label { margin-bottom: 5px; font-weight: bold; }
 input { padding: 8px; border: 1px solid #ccc; border-radius: 3px; }

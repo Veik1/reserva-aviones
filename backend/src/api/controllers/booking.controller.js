@@ -143,7 +143,7 @@ exports.getMyBookings = async (req, res) => {
         {
           model: db.Flight,
           as: 'flight',
-          attributes: ['id', 'flight_number', 'origin', 'destination', 'departure_time', 'arrival_time']
+          attributes: ['id', 'flight_number', 'origin', 'destination', 'departure_time', 'arrival_time', 'image_url']
         },
         // No necesitamos incluir db.User aquí normalmente
       ],
