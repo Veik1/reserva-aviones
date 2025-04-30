@@ -66,7 +66,8 @@ En la terminal de VSCode, correr el siguiente comando para instalar todas las de
 
 Luego que se instalen todas las dependencias, para iniciar el servidor del proyecto correr el siguiente comando:
 
-    npm run dev:full
+    node src/server.cjs
+    nodemon src/server.js
 
 ## 🧪 Uso y Pruebas en Postman
 
