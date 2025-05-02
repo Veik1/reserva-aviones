@@ -43,9 +43,8 @@ Se deberá crear las bases de datos
 
 En Linux:
 ```
-sudo -u postgres createdb reserva_aviones_dev
+sudo -u postgres createdb reserva_aviones
 sudo -u postgres createdb reserva_aviones_test
-sudo -u postgres createdb reserva_aviones_prod
 ```
 
 En Windows (powershell):
@@ -57,16 +56,17 @@ psql -U postgres
 y luego creamos las databases:
 CREATE DATABASE reserva_aviones;
 CREATE DATABASE reserva_aviones_test;
-CREATE DATABASE reserva_aviones_prod;
 ```
 
-En la terminal de VSCode, correr el siguiente comando para instalar todas las dependencias necesarias para iniciar correctamente el proyecto
+En la terminal de VSCode, correr los siguientes comandos para instalar todas las dependencias necesarias para iniciar correctamente el proyecto, y a la vez, inicializar los servidores
 
-    npm install
-
-Luego que se instalen todas las dependencias, para iniciar el servidor del proyecto correr el siguiente comando:
-
+    cd backend
+    npm i
+    npx sequelize-cli db:migrate
+    npx sequelize-cli db:seed:all
     node src/server.cjs
+    cd ../frontend
+    npm i
     npm run dev
 
 ## 🧪 Uso y Pruebas en Postman
