@@ -55,7 +55,7 @@ Nos logueamos:
 psql -U postgres
 
 y luego creamos las databases:
-CREATE DATABASE reserva_aviones_dev;
+CREATE DATABASE reserva_aviones;
 CREATE DATABASE reserva_aviones_test;
 CREATE DATABASE reserva_aviones_prod;
 ```
