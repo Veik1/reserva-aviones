@@ -7,6 +7,7 @@
     <footer class="footer">
       <!-- Footer content -->
       <p>© {{ new Date().getFullYear() }} Reserva de Vuelos App</p>
+      <p>© Martin Lamas - Facundo Mentoro - Sandra Romero - Gonzalo Arizza - Eduardo Arizza</p>
     </footer>
   </div>
 </template>

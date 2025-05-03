@@ -30,7 +30,7 @@
          <hr>
          <div class="form-group">
              <!-- Esto ya usaba props indirectamente a través de totalPrice, está bien -->
-             <p><strong>Precio total:</strong> ${{ totalPrice.toFixed(2) }}</p>
+             <p><strong>Precio total:</strong> u$s {{ totalPrice.toFixed(2) }}</p>
          </div>
     </div>
 </template>

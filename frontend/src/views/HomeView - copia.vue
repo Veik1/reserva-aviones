@@ -30,7 +30,6 @@
      v-for="(vuelo, index) in loopedVuelos"
      :key="index + '-' + vuelo.id"
      :class="{ centered: index === centeredIndex }">
-      <router-link :to="`/flights/${vuelo.id}`" class="flight-link">
       <img :src="vuelo.imagen" class="flight-image" alt="Imagen de vuelo" />
       <div class="flight-info">
         <p><strong>{{ vuelo.origen }}</strong> → <strong>{{ vuelo.destino }}</strong></p>
@@ -39,7 +38,6 @@
         <span class="precio-descuento">Precio Oferta:</span>
         <span class="precio-oferta">u$s {{ vuelo.oferta }}</span>
       </div>
-    </router-link>
     </div>
   </div>
 

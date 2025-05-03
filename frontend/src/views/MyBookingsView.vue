@@ -60,7 +60,7 @@
               </div>
                <div class="info-item">
                 <span class="info-label">Precio Pagado</span>
-                <span class="info-value price">${{ parseFloat(booking.total_price).toFixed(2) }}</span>
+                <span class="info-value price">u$s {{ parseFloat(booking.total_price).toFixed(2) }}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Reservado el</span>

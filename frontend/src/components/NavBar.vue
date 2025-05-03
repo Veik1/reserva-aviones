@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="navbar-brand">
-      <router-link to="/" class="navbar-item brand">✈️ Reserva de Vuelos</router-link>
+      <router-link to="/" class="navbar-item brand">✈️ Inicio</router-link>
     </div>
     <div class="navbar-menu">
       <div class="navbar-start">
@@ -9,14 +9,16 @@
         <router-link
           v-if="authStore.isAuthenticated && !authStore.isAdmin"
           to="/my-bookings"
-          class="navbar-item">
-          Mis Reservas
-        </router-link>
+          class="navbar-item">Mis Reservas</router-link>
         <router-link v-if="authStore.isAdmin" to="/admin/flights" class="navbar-item">Gestionar Vuelos</router-link>
         <router-link v-if="authStore.isAdmin" to="/admin/bookings" class="navbar-item">Gestionar Reservas</router-link>
         <!-- Add My Bookings link here if implementing -->
         <!-- <router-link v-if="authStore.isAuthenticated && !authStore.isAdmin" to="/my-bookings" class="navbar-item">My Bookings</router-link> -->
       </div>
+      <div class="search-box">
+    <input type="text" v-model="query" placeholder="Buscar vuelos..." />
+    <button @click="buscar">Buscar</button>
+  </div>
       <div class="navbar-end">
         <div v-if="authStore.isAuthenticated" class="navbar-item">
           <span>¡Bienvenido, {{ authStore.currentUser?.name }}!</span>
@@ -45,7 +47,47 @@ const handleLogout = () => {
 };
 </script>
 
+<script>
+export default {
+  data() {
+    return {
+      query: ''
+    };
+  },
+  methods: {
+    buscar() {
+      // Aquí podrías redirigir, filtrar, o llamar una API
+      console.log("Buscando:", this.query);
+    }
+  }
+}
+</script>
+
 <style scoped>
+
+.search-box {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+input {
+  padding: 0.5rem;
+  flex: 1;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  background-color: #3273dc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #2756a3;
+}
 /* Basic Navbar Styling */
 .navbar {
   background-color: #3498db;

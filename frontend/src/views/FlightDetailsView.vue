@@ -40,7 +40,7 @@
           </div>
           <div class="info-item">
             <span class="info-label">Precio por asiento</span>
-            <span class="info-value price">${{ parseFloat(flight.price).toFixed(2) }}</span>
+            <span class="info-value price">u$s {{ parseFloat(flight.price).toFixed(2) }}</span>
           </div>
            <div class="info-item">
             <span class="info-label">Asientos disponibles</span>

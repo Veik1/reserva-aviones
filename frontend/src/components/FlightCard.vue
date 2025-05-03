@@ -15,7 +15,7 @@
       <p><strong>Hasta:</strong> {{ flight.destination }}</p>
       <p><strong>Partida:</strong> {{ formatDate(flight.departure_time) }}</p>
       <p><strong>Llegada:</strong> {{ formatDate(flight.arrival_time) }}</p>
-      <p><strong>Precio:</strong><span class="price-value"> ${{ parseFloat(flight.price).toFixed(2) }}</span></p>
+      <p><strong>Precio:</strong><span class="price-value"> u$s {{ parseFloat(flight.price).toFixed(2) }}</span></p>
       <p><strong>Asientos:</strong> {{ flight.seats_available }}</p>
     </div>
 
