@@ -61,13 +61,10 @@ CREATE DATABASE reserva_aviones_test;
 En la terminal de VSCode, correr los siguientes comandos para instalar todas las dependencias necesarias para iniciar correctamente el proyecto, y a la vez, inicializar los servidores
 
     cd backend
-    npm i
-    cd docker
-    docker-compose up --build -d
-    docker-compose exec app npx sequelize-cli db:migrate
-    docker-compose exec app npx sequelize-cli db:seed:all
-    npm run dev
-    (abrimos otra terminal)
+    docker compose up --build
+
+(abrimos otra terminal)
+
     cd frontend
     npm i
     npm run dev

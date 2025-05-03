@@ -12,24 +12,27 @@ services:
       POSTGRES_DB: reserva_aviones
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   app:
     build:
-      context: .. 
-      dockerfile: docker/Dockerfile 
+      context: .
+      dockerfile: docker/Dockerfile
     container_name: app_container
     depends_on:
       - postgres
     environment:
+      NODE_ENV: development
       DB_USER: postgres
       DB_PASSWORD: password
       DB_NAME: reserva_aviones
       DB_HOST: postgres
-    volumes:
-      - ..:/app
     ports:
       - "5000:5000"
+    volumes:
+      - .:/app
+      - /app/node_modules  # evita sobrescribir los node_modules del contenedor
+    command: npm run dev
+    restart: unless-stopped
 
 volumes:
   db_data:
