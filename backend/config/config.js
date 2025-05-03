@@ -1,35 +1,45 @@
-require('dotenv').config();
+require("dotenv").config();
 
 module.exports = {
   development: {
+<<<<<<< HEAD
     username: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || '1234',
     database: process.env.DB_NAME || 'reserva_aviones_dev',
     host: process.env.DB_HOST || 'localhost',
+=======
+    username: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASSWORD || "password",
+    database: process.env.DB_NAME || "reserva_aviones",
+    host: process.env.DB_HOST || "localhost",
+>>>>>>> 5ba5c1c38e87d6fe430e08af64912bd8c4b007ed
     port: process.env.DB_PORT || 5432,
-    dialect: 'postgres',
+    dialect: "postgres",
     logging: console.log,
     dialectOptions: {
-      ssl: process.env.DB_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false
+      ssl:
+        process.env.DB_SSL === "true"
+          ? { require: true, rejectUnauthorized: false }
+          : false,
     },
     pool: { max: 5, min: 0, acquire: 30000, idle: 10000 },
     define: {
       underscored: true,
       timestamps: true,
-      paranoid: true
-    }
+      paranoid: true,
+    },
   },
   test: {
-    username: process.env.DB_TEST_USER || 'postgres',
-    password: process.env.DB_TEST_PASSWORD || 'password',
-    database: process.env.DB_TEST_NAME || 'reserva_aviones_test',
-    host: process.env.DB_TEST_HOST || 'localhost',
-    dialect: 'postgres'
+    username: process.env.DB_TEST_USER || "postgres",
+    password: process.env.DB_TEST_PASSWORD || "password",
+    database: process.env.DB_TEST_NAME || "reserva_aviones_test",
+    host: process.env.DB_TEST_HOST || "localhost",
+    dialect: "postgres",
   },
   production: {
-    use_env_variable: 'DATABASE_URL',
-    dialect: 'postgres',
+    use_env_variable: "DATABASE_URL",
+    dialect: "postgres",
     logging: false,
-    dialectOptions: { ssl: { require: true, rejectUnauthorized: false } }
-  }
+    dialectOptions: { ssl: { require: true, rejectUnauthorized: false } },
+  },
 };
