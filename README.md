@@ -62,9 +62,11 @@ En la terminal de VSCode, correr los siguientes comandos para instalar todas las
 
     cd backend
     npm i
-    npx sequelize-cli db:migrate
-    npx sequelize-cli db:seed:all
-    node src/server.cjs
+    cd docker
+    docker-compose up --build -d
+    docker-compose exec app npx sequelize-cli db:migrate
+    docker-compose exec app npx sequelize-cli db:seed:all
+    npm run dev
     cd ../frontend
     npm i
     npm run dev
