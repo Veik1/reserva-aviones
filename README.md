@@ -67,7 +67,8 @@ En la terminal de VSCode, correr los siguientes comandos para instalar todas las
     docker-compose exec app npx sequelize-cli db:migrate
     docker-compose exec app npx sequelize-cli db:seed:all
     npm run dev
-    cd ../frontend
+    (abrimos otra terminal)
+    cd frontend
     npm i
     npm run dev
 
