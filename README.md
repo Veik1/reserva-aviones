@@ -11,17 +11,20 @@
 ```
 
 ## Requisitos
+
+• [vscode](https://code.visualstudio.com/download)
+
 • [Node.js](https://nodejs.org/en/download)
 
-• [PostgreSQL](https://www.postgresql.org/download/)
+• [DBeaver](https://dbeaver.io/download/)
 
-• npm
+• [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/)
 
 ## Tecnologías que se utilizaron:
 ```
 • Backend: Node.js, Express, Sequelize, PostgreSQL
 • Frontend: Vue.js, HTML5, CSS3
-• Herramientas: Nodemon, Morgan
+• Herramientas: Nodemon, Morgan, Docker
 ```
 
 ## Guía de Instalación:
@@ -39,24 +42,6 @@ Desde el botón <**Code**> elegir la opción Download ZIP para descargar el repo
 Una vez que se tenga el proyecto en el directorio deseado, en el Símbolo de Sistema (CMD) ir hasta el proyecto y abrir VSCode (code .)
 
 ## Instalación de Dependencias e Inicio del Proyecto
-Se deberá crear las bases de datos
-
-En Linux:
-```
-sudo -u postgres createdb reserva_aviones
-sudo -u postgres createdb reserva_aviones_test
-```
-
-En Windows (powershell):
-
-```
-Nos logueamos:
-psql -U postgres
-
-y luego creamos las databases:
-CREATE DATABASE reserva_aviones;
-CREATE DATABASE reserva_aviones_test;
-```
 
 En la terminal de VSCode, correr los siguientes comandos para instalar todas las dependencias necesarias para iniciar correctamente el proyecto, y a la vez, inicializar los servidores
 
