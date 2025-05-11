@@ -8,6 +8,7 @@ import FlightDetailsView from '../views/FlightDetailsView.vue';
 import CreateBookingView from '../views/CreateBookingView.vue';
 import AdminFlightsView from '../views/AdminFlightsView.vue';
 import AdminBookingsView from '../views/AdminBookingsView.vue';
+import AdminFlightOfferingsView from '../views/AdminFlightOfferingsView.vue';
 import MyBookingsView from '../views/MyBookingsView.vue'; // Crear este archivo
 import NotFoundView from '../views/NotFoundView.vue';
 
@@ -62,6 +63,13 @@ const router = createRouter({
             path: '/admin/flights',
             name: 'admin-flights',
             component: AdminFlightsView,
+            meta: { requiresAdmin: true },
+        },
+        {
+            path: '/admin/flights/:flightId/offerings', // Recibe el flightId como parámetro
+            name: 'admin-flight-offerings',
+            component: AdminFlightOfferingsView,
+            props: true, // Pasa los parámetros de ruta como props al componente
             meta: { requiresAdmin: true },
         },
         {

@@ -1,12 +1,14 @@
+'use strict'; // Buena práctica añadir 'use strict'
 const { DataTypes } = require('sequelize');
 
 module.exports = {
-    up: async (queryInterface, Sequelize) => {
+    async up (queryInterface, Sequelize) { // 'async' para up y down
         await queryInterface.createTable('Users', {
             id: {
                 type: DataTypes.UUID,
                 defaultValue: DataTypes.UUIDV4,
-                primaryKey: true
+                primaryKey: true,
+                allowNull: false // El ID no debería ser nulo
             },
             name: {
                 type: DataTypes.STRING,
@@ -15,17 +17,39 @@ module.exports = {
             email: {
                 type: DataTypes.STRING,
                 allowNull: false,
-                unique: true
+                unique: true,
+                validate: { // Opcional: añadir validación de formato email
+                    isEmail: true
+                }
             },
             password: {
                 type: DataTypes.STRING,
                 allowNull: false
             },
-            role: { // Agregar la columna 'role'
+            role: {
                 type: DataTypes.ENUM('user', 'admin'),
                 defaultValue: 'user',
                 allowNull: false
             },
+            // --- NUEVOS CAMPOS AÑADIDOS DIRECTAMENTE ---
+            dni: {
+                type: DataTypes.STRING,
+                allowNull: true, // Cambiar a false si es obligatorio al registrarse
+                unique: true     // El DNI generalmente es único
+            },
+            fecha_nacimiento: {
+                type: DataTypes.DATEONLY, // Solo la fecha, sin hora
+                allowNull: true // Cambiar a false si es obligatorio al registrarse
+            },
+            telefono: {
+                type: DataTypes.STRING,
+                allowNull: true
+            },
+            direccion: {
+                type: DataTypes.STRING,
+                allowNull: true
+            },
+            // --- FIN NUEVOS CAMPOS ---
             created_at: {
                 type: DataTypes.DATE,
                 allowNull: false,
@@ -38,7 +62,7 @@ module.exports = {
             }
         });
     },
-    down: async (queryInterface, Sequelize) => {
+    async down (queryInterface, Sequelize) { // 'async' para up y down
         await queryInterface.dropTable('Users');
     }
 };

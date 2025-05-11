@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const getDb = require('../models/index.js'); // Asegúrate de que esta ruta sea correcta
+const db = require('../models/index.js'); // Asegúrate de que esta ruta sea correcta
 
 const verifyToken = async (req, res, next) => {
     try {
@@ -28,7 +28,7 @@ const verifyToken = async (req, res, next) => {
 const authorizeRole = (role) => {
     return async (req, res, next) => {
         try {
-            const db = await getDb();
+            //const db = await getDb();
             const user = await db.User.findByPk(req.userId);
 
             if (!user || user.role !== role) {

@@ -1,134 +1,159 @@
 <template>
-  <div class="admin-bookings-view"> <!-- Cambiado el nombre de la clase -->
-    <h2>Administrar Reservas</h2> <!-- Título cambiado -->
+  <div class="admin-bookings-view">
+    <h2>Administrar Reservas</h2>
     <AlertMessage v-if="error" type="error" :message="error" />
     <AlertMessage v-if="success" type="success" :message="success" />
 
-    <!-- Eliminado el botón y el formulario de creación/edición -->
+    <!-- Filtros (Implementación futura) -->
+    <!-- <div class="filters"> ... </div> -->
 
-    <div v-if="loading" class="loading">Cargando reservas...</div> <!-- Texto cambiado -->
-    <table v-else-if="bookings.length > 0"> <!-- Variable cambiada a bookings -->
+    <div v-if="loading" class="loading">Cargando reservas...</div>
+    <table v-else-if="bookings.length > 0">
       <thead>
         <tr>
-          <th>Código Reserva</th>
+          <th>Código</th>
           <th>Vuelo (Num)</th>
+          <th>Clase</th>
           <th>Usuario</th>
           <th>Pasajero</th>
           <th>Asiento</th>
+          <th>Precio</th>
           <th>Estado</th>
-          <th>Precio Total</th>
-          <th>Fecha Creación</th>
+          <th>Reservado el</th>
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <!-- Loop cambiado a bookings -->
         <tr v-for="booking in bookings" :key="booking.id">
           <td>{{ booking.booking_code }}</td>
-          <!-- Accede a datos asociados con optional chaining (?.) por si no vienen -->
-          <td>{{ booking.flight?.flight_number || 'N/A' }}</td>
+          <td>{{ booking.flightOffering?.flight?.flight_number || 'N/A' }}</td>
+          <td>{{ booking.flightOffering?.flightClass?.name || 'N/A' }}</td>
           <td>{{ booking.user?.name || booking.user?.email || 'N/A' }}</td>
           <td>
              {{ booking.passenger_name }} {{ booking.passenger_last_name }}
              <small v-if="booking.passenger_email">({{ booking.passenger_email }})</small>
           </td>
           <td>{{ booking.seat }}</td>
-          <td>
-              <span :class="`status-${booking.status?.toLowerCase()}`">{{ formatBookingStatus(booking.status) }}</span>
-          </td>
           <td>${{ parseFloat(booking.total_price).toFixed(2) }}</td>
-          <td>{{ formatDate(booking.created_at) }}</td> <!-- Usar la fecha de creación de la reserva -->
           <td>
-            <!-- Eliminado botón de Editar por ahora -->
-            <!-- <button @click="editBooking(booking)" class="button is-small is-warning">Editar Estado</button> -->
+            <!-- Edición de estado -->
+            <select
+              v-if="editingStatusFor === booking.id"
+              v-model="newStatus"
+              @change="saveStatusChange(booking)"
+              @blur="cancelStatusEdit()"
+              class="status-select"
+            >
+              <option value="confirmed">Confirmado</option>
+              <option value="pending">Pendiente</option>
+              <option value="canceled">Cancelado</option>
+            </select>
+            <span
+              v-else
+              @click="startStatusEdit(booking)"
+              :class="`status-display status-${booking.status?.toLowerCase()}`"
+              title="Clic para editar estado"
+            >
+              {{ formatBookingStatus(booking.status) }}
+            </span>
+          </td>
+          <td>{{ formatDate(booking.created_at || booking.createdAt) }}</td>
+          <td>
             <button @click="confirmDelete(booking.id)" class="button is-small is-danger">Eliminar</button>
           </td>
         </tr>
       </tbody>
     </table>
-    <p v-else>No se encontraron reservas.</p> <!-- Mensaje cambiado -->
+    <p v-else>No se encontraron reservas.</p>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'; // Eliminado computed si no se usa para editar
-import * as api from '@/services/api'; // Mantenemos todas las importaciones de api
-// Eliminada la importación de FlightForm ya que no se usa
+import { ref, onMounted } from 'vue';
+import * as api from '@/services/api';
 import AlertMessage from '@/components/AlertMessage.vue';
-import { formatDate,formatBookingStatus } from '@/utils/formatters'; // Asegúrate que este archivo exista y funcione
+import { formatDate, formatBookingStatus } from '@/utils/formatters';
 
-// Cambiamos los nombres de las refs para claridad
 const bookings = ref([]);
 const loading = ref(true);
 const error = ref('');
 const success = ref('');
-// Eliminadas las refs relacionadas con el formulario de edición/creación
-// const showCreateForm = ref(false);
-// const editingBooking = ref(null);
 
-// Eliminado el computed property para editar
-// const bookingToEdit = computed(...)
+const editingStatusFor = ref(null); // ID de la reserva cuyo estado se está editando
+const newStatus = ref('');         // Nuevo estado seleccionado
 
-// Nueva función para cargar reservas
 const loadBookings = async () => {
-    loading.value = true;
-    error.value = '';
-    success.value = '';
-    try {
-        // Llamada a la API para obtener reservas
-        const response = await api.fetchBookings();
-        // Verificar si la respuesta tiene datos y es un array
-        if (response && response.data && Array.isArray(response.data)) {
-             bookings.value = response.data;
-        } else {
-            console.warn("La respuesta de fetchBookings no es un array válido:", response);
-            bookings.value = []; // Asignar array vacío si la respuesta no es válida
-            error.value = 'Formato de respuesta inesperado del servidor.';
-        }
-
-    } catch (err) {
-        console.error("Failed to fetch bookings:", err);
-        // Mostrar mensaje de error más específico si es posible
-        if (err.response && err.response.status === 401) {
-            error.value = 'No autorizado. Inicia sesión como administrador.';
-        } else if (err.response && err.response.status === 403) {
-             error.value = 'Permiso denegado. Necesitas ser administrador.';
-        }
-         else {
-            error.value = 'No se pudieron cargar las reservas.';
-        }
-         bookings.value = []; // Limpiar reservas en caso de error
-    } finally {
-        loading.value = false;
+  loading.value = true; error.value = ''; success.value = '';
+  try {
+    const response = await api.fetchBookings(); // Endpoint de admin
+    // Verifica que la respuesta del backend para el admin SÍ incluya la estructura:
+    // booking -> user
+    // booking -> flightOffering -> flight
+    // booking -> flightOffering -> flightClass
+    if (response && response.data && Array.isArray(response.data)) {
+      bookings.value = response.data;
+      console.log('Reservas admin cargadas:', response.data); // Para depurar
+    } else {
+      console.warn("Respuesta no válida de fetchBookings (admin):", response);
+      bookings.value = []; error.value = 'Formato de respuesta inesperado.';
     }
+  } catch (err) {
+    console.error("Error al obtener todas las reservas:", err);
+    error.value = err.response?.data?.error || 'No se pudieron cargar las reservas.';
+    bookings.value = [];
+  } finally {
+    loading.value = false;
+  }
 };
 
-// Cargar reservas cuando el componente se monta
 onMounted(loadBookings);
 
-// Eliminada la función editBooking
-// const editBooking = (booking) => { ... };
-
-// Eliminada la función handleFormSubmit
-// const handleFormSubmit = async (bookingData) => { ... };
-
-// Adaptada la función confirmDelete para usar la API de reservas
-const confirmDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar esta reserva? Esta acción no se puede deshacer.')) {
-        error.value = '';
-        success.value = '';
-        try {
-            // Llamada a la API para eliminar la reserva
-            await api.deleteBooking(id);
-            success.value = 'Reserva eliminada correctamente!';
-            await loadBookings(); // Refrescar la lista de reservas
-        } catch (err) {
-             console.error("Failed to delete booking:", err.response?.data || err);
-             error.value = err.response?.data?.message || 'Error al eliminar la reserva.';
-        }
-    }
+const startStatusEdit = (booking) => {
+  editingStatusFor.value = booking.id;
+  newStatus.value = booking.status; // Pre-seleccionar estado actual
 };
 
+const cancelStatusEdit = () => {
+  editingStatusFor.value = null;
+};
+
+const saveStatusChange = async (booking) => {
+  if (!newStatus.value || newStatus.value === booking.status) {
+    cancelStatusEdit();
+    return;
+  }
+  loading.value = true; // Podrías usar un loading específico para esta acción
+  try {
+    await api.updateBooking(booking.id, { status: newStatus.value });
+    success.value = `Estado de la reserva ${booking.booking_code} actualizado.`;
+    // Actualizar el estado localmente o recargar todo
+    const index = bookings.value.findIndex(b => b.id === booking.id);
+    if (index !== -1) {
+      bookings.value[index].status = newStatus.value;
+    }
+    // Opcionalmente: await loadBookings();
+  } catch (err) {
+    console.error("Error al actualizar estado de reserva:", err);
+    error.value = err.response?.data?.error || 'No se pudo actualizar el estado.';
+  } finally {
+    cancelStatusEdit();
+    loading.value = false;
+  }
+};
+
+const confirmDelete = async (id) => {
+  if (window.confirm('¿Seguro que quieres eliminar esta reserva?')) {
+    // ... (lógica de confirmDelete existente) ...
+    try {
+        await api.deleteBooking(id);
+        success.value = 'Reserva eliminada correctamente!';
+        await loadBookings();
+    } catch (err) {
+          console.error("Failed to delete booking:", err.response?.data || err);
+          error.value = err.response?.data?.message || 'Error al eliminar la reserva.';
+    }
+  }
+};
 </script>
 
 <style scoped>
@@ -159,5 +184,22 @@ td small { display: block; font-size: 0.85em; color: #777; margin-top: 2px;}
     font-weight: bold;
     text-decoration: line-through;
 }
+.status-display {
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  /* Los estilos de color ya los tienes con .status-confirmed, etc. */
+}
+.status-display:hover {
+  background-color: #f0f0f0; /* Un ligero hover para indicar que es clickeable */
+}
+.status-select {
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  min-width: 120px; /* Para que el select no sea muy pequeño */
+}
+table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85em;} /* Tamaño de fuente reducido */
+th, td { border: 1px solid #ddd; padding: 8px 6px; text-align: left; vertical-align: middle;}
 
 </style>

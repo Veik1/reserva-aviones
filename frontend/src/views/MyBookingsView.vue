@@ -3,51 +3,53 @@
       <h2>Mis Reservas</h2>
       <AlertMessage v-if="error" type="error" :message="error" />
       <AlertMessage v-if="success" type="success" :message="success" />
-  
+
       <div v-if="loading" class="loading">Cargando tus reservas...</div>
-  
-      <!-- Cambiamos el contenedor para que se parezca a la vista de detalles -->
+
       <div v-else-if="bookings.length > 0" class="booking-list-container">
-        <!-- Iteramos sobre las reservas para crear tarjetas individuales -->
         <div v-for="booking in bookings" :key="booking.id" class="booking-details-card">
-  
+
           <!-- Imagen de Cabecera (del Vuelo) -->
-          <div class="flight-image-wrapper" v-if="booking.flight?.image_url">
-            <img :src="booking.flight.image_url" :alt="'Imagen del vuelo ' + (booking.flight?.flight_number || '')" class="flight-image-details">
+          <div class="flight-image-wrapper" v-if="booking.flightOffering?.flight?.image_url">
+            <img :src="booking.flightOffering.flight.image_url" :alt="'Imagen del vuelo ' + (booking.flightOffering?.flight?.flight_number || '')" class="flight-image-details">
           </div>
           <div class="flight-image-placeholder" v-else>
              <span>✈️</span>
           </div>
-  
+
           <!-- Encabezado de la Reserva -->
           <div class="details-header">
-             <!-- Mostramos Código y Estado aquí -->
              <span class="booking-code-header">Reserva: {{ booking.booking_code }}</span>
              <span :class="`status status-${booking.status?.toLowerCase()}`">{{ formatBookingStatus(booking.status) }}</span>
           </div>
-  
+
           <!-- Cuerpo con Información -->
           <div class="details-body">
             <h3>Información del Vuelo</h3>
             <div class="info-grid">
               <div class="info-item">
                 <span class="info-label">Vuelo</span>
-                <span class="info-value">{{ booking.flight?.flight_number || 'N/A' }}</span>
+                <span class="info-value">{{ booking.flightOffering?.flight?.flight_number || 'N/A' }}</span>
               </div>
-               <div class="info-item"> <!-- Ruta combinada -->
+               <div class="info-item">
                 <span class="info-label">Ruta</span>
-                <span class="info-value">{{ booking.flight?.origin || 'N/A' }} → {{ booking.flight?.destination || 'N/A' }}</span>
+                <span class="info-value">{{ booking.flightOffering?.flight?.origin || 'N/A' }} → {{ booking.flightOffering?.flight?.destination || 'N/A' }}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Salida</span>
-                <span class="info-value">{{ formatDate(booking.flight?.departure_time) }}</span>
+                <span class="info-value">{{ formatDate(booking.flightOffering?.flight?.departure_time) }}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Llegada</span>
-                <span class="info-value">{{ formatDate(booking.flight?.arrival_time) }}</span>
+                <span class="info-value">{{ formatDate(booking.flightOffering?.flight?.arrival_time) }}</span>
+              </div>
+              <!-- Añadir la clase reservada -->
+              <div class="info-item">
+                <span class="info-label">Clase Reservada</span>
+                <span class="info-value">{{ booking.flightOffering?.flightClass?.name || 'N/A' }}</span>
               </div>
             </div>
-  
+
             <h3 class="section-divider">Detalles de la Reserva</h3>
             <div class="info-grid">
                <div class="info-item">
@@ -64,12 +66,12 @@
               </div>
               <div class="info-item">
                 <span class="info-label">Reservado el</span>
-                <span class="info-value">{{ formatDate(booking.createdAt, { year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
+                <!-- Usar booking.created_at (o booking.createdAt si el backend lo envía así después de los cambios de underscored) -->
+                <span class="info-value">{{ formatDate(booking.created_at || booking.createdAt, { year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
               </div>
             </div>
           </div>
-  
-          <!-- Acciones -->
+
           <div class="details-actions">
              <button
                 v-if="booking.status?.toLowerCase() !== 'canceled' && booking.status?.toLowerCase() !== 'cancelado'"
@@ -79,14 +81,15 @@
              </button>
              <span v-else class="status-canceled-text">Reserva Cancelada</span>
           </div>
-  
+
         </div>
       </div>
-  
+
       <p v-else class="no-bookings">No tienes ninguna reserva activa o pasada.</p>
     </div>
-  </template>
-  
+</template>
+
+<!-- El script setup y los estilos no cambian -->
   <script setup>
   // --- El script setup NO cambia ---
   import { ref, onMounted } from 'vue';

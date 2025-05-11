@@ -1,4 +1,3 @@
-
 <template>
 	<div class="login-view">
 	  <h2>Acceso</h2>

@@ -171,9 +171,8 @@ Para probar la API, puedes importar la colección de Postman disponible en el re
 **Respuesta: Parámetro de la URL: id (UUID del vuelo). Cuerpo de la petición (JSON): (Puede contener cualquier campo del objeto vuelo a actualizar). **
 ```json
 {
-	"seats_available": Nuevo número de asientos disponibles,
-	"price": Nuevo precio del vuelo
-	// ... otros campos a actualizar
+	"seats_available": "Nuevo número de asientos disponibles",
+	"price": "Nuevo precio del vuelo"
 }
 ```
 

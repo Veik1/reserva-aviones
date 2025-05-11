@@ -1,28 +1,44 @@
-
-const {Sequelize, DataTypes} = require('sequelize');
-const sequelizeInstance = require('../../db/database.js');
-const User = require('./User.js');
-const Flight = require('./Flight.js');
-const Booking = require('./Booking.js');
-
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const { Sequelize, DataTypes } = require('sequelize');
+const sequelizeInstance = require('../../db/database.js'); // Asumiendo que este es tu objeto sequelize configurado
 
 const db = {};
+const basename = path.basename(__filename);
 
-db.Sequelize = Sequelize;
+// Cargar todos los modelos de la carpeta actual automáticamente
+fs
+  .readdirSync(__dirname)
+  .filter(file => {
+    return (
+      file.indexOf('.') !== 0 &&
+      file !== basename &&
+      file.slice(-3) === '.js' &&
+      file.indexOf('.test.js') === -1
+    );
+  })
+  .forEach(file => {
+    // const model = require(path.join(__dirname, file))(sequelizeInstance, Sequelize.DataTypes); // Modo antiguo
+    const modelDefinition = require(path.join(__dirname, file));
+    const model = modelDefinition(sequelizeInstance, DataTypes); // Modo estándar
+    db[model.name] = model;
+  });
+
+// Ejecutar las asociaciones si están definidas
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
+
 db.sequelize = sequelizeInstance;
+db.Sequelize = Sequelize;
 
-db.User = User(sequelizeInstance, DataTypes);
-db.Flight = Flight(sequelizeInstance, DataTypes);
-db.Booking = Booking(sequelizeInstance, DataTypes);
+// Eliminamos la función getDb y exportamos db directamente, que es más común
+// async function getDb() {
+//   return db;
+// }
+// module.exports = getDb;
 
-// Definir asociaciones
-db.Booking.belongsTo(db.User, { foreignKey: 'user_id', as: 'user' });
-db.Booking.belongsTo(db.Flight, { foreignKey: 'flight_id', as: 'flight' });
-db.User.hasMany(db.Booking, { foreignKey: 'user_id', as: 'bookings' });
-db.Flight.hasMany(db.Booking, { foreignKey: 'flight_id', as: 'bookings' });
-
-async function getDb() {
-  return db;
-}
-
-module.exports = getDb;
+module.exports = db; // Exportar el objeto db completo

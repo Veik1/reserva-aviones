@@ -1,3 +1,4 @@
+'use strict';
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
@@ -5,34 +6,33 @@ module.exports = (sequelize) => {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
-      primaryKey: true
+      primaryKey: true,
+      allowNull: false
     },
     booking_code: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true
     },
-    flight_id: {
+    // flight_id: { // <-- ELIMINADO, ahora se usa flight_offering_id
+    //   type: DataTypes.UUID,
+    //   allowNull: false
+    // },
+    flight_offering_id: { // <-- NUEVA FK
       type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: 'Flights',
-        key: 'id'
-      }
+      allowNull: false
+      // references ya está definido en la migración
     },
     user_id: {
       type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: 'Users',
-        key: 'id'
-      }
+      allowNull: false
+      // references ya está definido en la migración
     },
     seat: {
       type: DataTypes.STRING(4),
       allowNull: false
     },
-    total_price: {
+    total_price: { // Este precio debe coincidir con el de FlightOffering en el momento de la reserva
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false
     },
@@ -40,15 +40,15 @@ module.exports = (sequelize) => {
       type: DataTypes.ENUM('confirmed', 'pending', 'canceled'),
       defaultValue: 'confirmed'
     },
-    passenger_name: { // Agregar campo nombre del pasajero
+    passenger_name: {
+      type: DataTypes.STRING,
+      allowNull: true // O false si siempre es obligatorio
+    },
+    passenger_last_name: {
       type: DataTypes.STRING,
       allowNull: true
     },
-    passenger_last_name: { // Agregar campo apellido del pasajero
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    passenger_email: { // Agregar campo email del pasajero
+    passenger_email: {
       type: DataTypes.STRING,
       allowNull: true
     }
@@ -57,14 +57,19 @@ module.exports = (sequelize) => {
     timestamps: true,
     underscored: true
   });
+
   Booking.associate = (models) => {
     Booking.belongsTo(models.User, {
-      foreignKey: 'userId',
+      foreignKey: 'user_id', // Corregido
       as: 'user'
     });
-    Booking.belongsTo(models.Flight, {
-      foreignKey: 'flightId',
-      as: 'flight'
+    // Booking.belongsTo(models.Flight, { // <-- ELIMINADO
+    //   foreignKey: 'flight_id', // Corregido
+    //   as: 'flight'
+    // });
+    Booking.belongsTo(models.FlightOffering, { // <-- NUEVA ASOCIACIÓN
+      foreignKey: 'flight_offering_id',
+      as: 'flightOffering' // Una reserva pertenece a una oferta específica
     });
   };
   return Booking;

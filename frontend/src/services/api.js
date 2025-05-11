@@ -62,6 +62,16 @@ export const createFlight = (flightData) => apiClient.post('/flights', flightDat
 export const updateFlight = (id, flightData) => apiClient.put(`/flights/${id}`, flightData); // Needs admin token
 export const deleteFlight = (id) => apiClient.delete(`/flights/${id}`); // Needs admin token
 
+// --- FlightOffering Service (AÑADE ESTA SECCIÓN COMPLETA) ---
+export const fetchOfferingsByFlight = (flightId) => apiClient.get(`/flightofferings/flight/${flightId}`);
+export const createFlightOffering = (offeringData) => apiClient.post('/flightofferings', offeringData);
+export const updateFlightOffering = (offeringId, offeringData) => apiClient.put(`/flightofferings/${offeringId}`, offeringData);
+export const deleteFlightOffering = (offeringId) => apiClient.delete(`/flightofferings/${offeringId}`);
+
+
+// --- FlightClass Service (NUEVO) ---
+export const fetchFlightClasses = () => apiClient.get('/flightclasses');
+
 // --- Booking Service ---
 export const createBooking = (bookingData) => apiClient.post('/bookings', bookingData); // Needs user/admin token
 export const fetchBookings = () => apiClient.get('/bookings'); // Needs admin token

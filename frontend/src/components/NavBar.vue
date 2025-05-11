@@ -1,7 +1,10 @@
 <template>
   <nav class="navbar">
     <div class="navbar-brand">
-      <router-link to="/" class="navbar-item brand">✈️ Inicio</router-link>
+      <router-link to="/" class="navbar-item brand-link">
+        <img src="@/assets/Aerotravel.jpg" alt="AeroTravel Logo" class="brand-logo">
+        <span class="brand-text">✈️ AeroTravel</span>
+      </router-link>
     </div>
     <div class="navbar-menu">
       <div class="navbar-start">
@@ -12,19 +15,16 @@
           class="navbar-item">Mis Reservas</router-link>
         <router-link v-if="authStore.isAdmin" to="/admin/flights" class="navbar-item">Gestionar Vuelos</router-link>
         <router-link v-if="authStore.isAdmin" to="/admin/bookings" class="navbar-item">Gestionar Reservas</router-link>
-        <!-- Add My Bookings link here if implementing -->
-        <!-- <router-link v-if="authStore.isAuthenticated && !authStore.isAdmin" to="/my-bookings" class="navbar-item">My Bookings</router-link> -->
+        <!-- Si implementas gestión de usuarios, irá aquí -->
+        <!-- <router-link v-if="authStore.isAdmin" to="/admin/users" class="navbar-item">Gestionar Usuarios</router-link> -->
       </div>
-      <div class="search-box">
-    <input type="text" v-model="query" placeholder="Buscar vuelos..." />
-    <button @click="buscar">Buscar</button>
-  </div>
+      <!-- Eliminada la search-box de aquí -->
       <div class="navbar-end">
-        <div v-if="authStore.isAuthenticated" class="navbar-item">
+        <div v-if="authStore.isAuthenticated" class="navbar-item user-greeting">
           <span>¡Bienvenido, {{ authStore.currentUser?.name }}!</span>
           <button @click="handleLogout" class="button is-light logout-button">Cerrar sesión</button>
         </div>
-        <div v-else class="navbar-item">
+        <div v-else class="navbar-item auth-buttons">
           <router-link to="/register" class="button is-primary">Registrarse</router-link>
           <router-link to="/login" class="button is-light">Iniciar sesión</router-link>
         </div>
@@ -35,17 +35,16 @@
 
 <script setup>
 import { useAuthStore } from '@/store/auth';
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'; // Aunque no se usa directamente, es común tenerlo
 
 const authStore = useAuthStore();
-const router = useRouter();
+const router = useRouter(); // Declarado pero no usado, puedes quitarlo si no lo necesitas
 
 const handleLogout = () => {
   authStore.logout();
-  // Redirect handled within logout action
-  // router.push('/login');
 };
 </script>
+<!-- Eliminado el <script> de Options API que tenías para 'buscar' -->
 
 <script>
 export default {
@@ -64,91 +63,106 @@ export default {
 </script>
 
 <style scoped>
-
-.search-box {
-  display: flex;
-  gap: 0.5rem;
-  margin: 1rem 0;
-}
-
-input {
-  padding: 0.5rem;
-  flex: 1;
-}
-
-button {
-  padding: 0.5rem 1rem;
-  background-color: #3273dc;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #2756a3;
-}
-/* Basic Navbar Styling */
 .navbar {
-  background-color: #3498db;
-  padding: 0.5rem 1rem;
+  background-color: #3498db; /* Azul principal */
+  padding: 0.75rem 1.5rem; /* Más padding vertical y horizontal */
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra sutil */
+  position: sticky; /* Hacerla pegajosa arriba */
+  top: 0;
+  z-index: 100; /* Para que esté sobre otros elementos */
 }
-.navbar-brand .brand {
-    font-weight: bold;
-    font-size: 1.2em;
+
+.navbar-brand .brand-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
 }
+
+.brand-logo {
+  height: 40px; /* Ajusta el tamaño de tu logo */
+  margin-right: 10px;
+  border-radius: 4px; /* Opcional: redondear bordes del logo */
+}
+
+.brand-text {
+  font-weight: bold;
+  font-size: 1.4em; /* Tamaño del texto de la marca */
+}
+
 .navbar-menu {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Esto separará navbar-start y navbar-end */
   flex-grow: 1;
   align-items: center;
 }
+
 .navbar-start, .navbar-end {
   display: flex;
   align-items: center;
 }
-.navbar-item {
-  color: white;
-  padding: 0.5rem 0.75rem;
-  text-decoration: none;
-  margin-left: 10px;
-}
-.navbar-item:hover, .navbar-item.router-link-active {
-  background-color: #2980b9;
-  border-radius: 4px;
-}
-.navbar-end .navbar-item {
-    margin-left: 0; /* Reset margin for end items */
-}
-.navbar-end span {
-    margin-right: 15px;
-}
-.button {
-  margin-left: 10px;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.button.is-primary {
-  background-color: #2ecc71;
-  color: white;
-}
-.button.is-light {
-  background-color: #ecf0f1;
-  color: #333;
-}
-.logout-button {
-    background-color: #e74c3c;
-    color: white;
-}
-.logout-button:hover {
-    background-color: #c0392b;
+
+.navbar-start {
+    margin-left: 20px; /* Espacio después del logo/marca */
 }
 
-/* Add more styles as needed */
+.navbar-item {
+  color: white;
+  padding: 0.6rem 1rem; /* Padding ajustado para los items */
+  text-decoration: none;
+  margin: 0 5px; /* Espacio entre items */
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  font-weight: 500; /* Ligeramente más grueso */
+}
+.navbar-item:hover,
+.navbar-item.router-link-exact-active { /* Estilo para el enlace activo */
+  background-color: #2980b9; /* Un azul más oscuro al pasar el ratón o activo */
+}
+
+.navbar-end .user-greeting span {
+  margin-right: 15px;
+  font-size: 0.95em;
+}
+.navbar-end .auth-buttons .button {
+    margin-left: 8px; /* Espacio entre botones de login/registro */
+}
+
+/* Estilos de botones (pueden estar aquí o en un archivo global) */
+.button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px; /* Bordes un poco más redondeados */
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.button:hover {
+    transform: translateY(-1px); /* Efecto sutil al pasar el ratón */
+}
+
+.button.is-primary {
+  background-color: #2ecc71; /* Verde */
+  color: white;
+}
+.button.is-primary:hover { background-color: #27ae60; }
+
+.button.is-light {
+  background-color: #f0f8ff; /* Un blanco azulado muy claro */
+  color: #3498db; /* Texto azul */
+  border: 1px solid #add8e6; /* Borde azul claro */
+}
+.button.is-light:hover { background-color: #e6f2ff; }
+
+.logout-button {
+    background-color: #e74c3c; /* Rojo */
+    color: white;
+}
+.logout-button:hover { background-color: #c0392b; }
+
+/* Eliminados los estilos de .search-box */
 </style>
