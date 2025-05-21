@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "c28be0d0-5fa5-49a6-a137-08526c7e22bd",
+		"_postman_id": "d8246782-82f3-407b-8e57-940ec2dc7344",
 		"name": "vuela-alto",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "34117926"
+		"_exporter_id": "36305875",
+		"_collection_link": "https://testigos-del-bitcoin.postman.co/workspace/Reserva-Aviones~dcb5fdc5-8e60-4ae6-b537-45fcb0fb0121/collection/36305875-d8246782-82f3-407b-8e57-940ec2dc7344?action=share&source=collection_link&creator=36305875"
 	},
 	"item": [
 		{
@@ -395,6 +396,40 @@
 								"api",
 								"bookings",
 								"516ca03c-7923-425d-b600-8f30a8da7b68"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Formas de Pago",
+			"item": [
+				{
+					"name": "Crear forma de pago",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "POST /api/payment-methods\r\nContent-Type: application/json\r\n\r\n{\r\n  \"type\": \"CREDIT_CARD\",\r\n  \"provider\": \"VISA\",\r\n  \"metadata\": {\r\n    \"card_number\": \"**** **** **** 1234\",\r\n    \"expiry\": \"12/26\"\r\n  },\r\n  \"is_default\": true,\r\n  \"user_id\": \"usuario-id-aqui\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/paymentmethods",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"paymentmethods"
 							]
 						}
 					},

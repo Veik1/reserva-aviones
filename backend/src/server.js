@@ -13,6 +13,8 @@ const bookingRoutes = require("./routes/booking.routes.js");
 // --- NUEVA IMPORTACIÓN DE RUTA ---
 const flightOfferingRoutes = require("./routes/flightoffering.routes.js"); // Asegúrate que el path sea correcto
 const flightClassRoutes = require("./routes/flightclass.routes.js");
+// payment routes
+const paymentRoutes = require("./routes/payment.routes.js");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -55,6 +57,8 @@ app.use("/api/bookings", bookingRoutes);
 // --- AÑADIR USO DE NUEVA RUTA ---
 app.use("/api/flightofferings", flightOfferingRoutes);
 app.use("/api/flightclasses", flightClassRoutes);
+// payment methods
+app.use('/api/paymentmethods', paymentRoutes);
 
 // Middleware para manejar errores de JSON malformado (opcional pero bueno)
 app.use((err, req, res, next) => {

@@ -51,7 +51,11 @@ module.exports = (sequelize) => {
     passenger_email: {
       type: DataTypes.STRING,
       allowNull: true
-    }
+    },
+    payment_method_id: {
+      type: DataTypes.UUID,
+      allowNull: false // Opcional, según si el pago es obligatorio al reservar
+    },
   }, {
     tableName: 'Bookings',
     timestamps: true,
@@ -71,6 +75,14 @@ module.exports = (sequelize) => {
       foreignKey: 'flight_offering_id',
       as: 'flightOffering' // Una reserva pertenece a una oferta específica
     });
+
+    Booking.belongsTo(models.PaymentMethod, {
+    foreignKey: 'payment_method_id',
+    as: 'paymentMethod'
+  });
   };
+  
+
+  
   return Booking;
 };
