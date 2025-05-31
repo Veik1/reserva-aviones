@@ -8,12 +8,10 @@ done
 
 echo "Base de datos lista."
 
-# Ejecutar migraciones y seeders
 echo "Ejecutando migraciones..."
 npx sequelize-cli db:migrate
 
 echo "Ejecutando seeders..."
 npx sequelize-cli db:seed:all
 
-# Inicio de la app
 exec "$@"
