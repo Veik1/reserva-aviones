@@ -1,0 +1,406 @@
+{
+	"info": {
+		"_postman_id": "c28be0d0-5fa5-49a6-a137-08526c7e22bd",
+		"name": "vuela-alto",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34117926"
+	},
+	"item": [
+		{
+			"name": "Autenticación",
+			"item": [
+				{
+					"name": "Registrar un nuevo usuario",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Martincho\",\r\n    \"email\": \"correo@ejemplo.com\",\r\n    \"password\": \"contraseña123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Iniciar sesión de un usuario existente y obtener un token JWT",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"correo@ejemplo.com\",\r\n    \"password\": \"contraseña123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Vuelos",
+			"item": [
+				{
+					"name": "Crear un nuevo vuelo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flight_number\": \"AV002\",\r\n    \"origin\": \"Buenos Aires\",\r\n    \"destination\": \"Córdoba\",\r\n    \"departure_time\": \"2025-04-15T10:00:00.000Z\",\r\n    \"arrival_time\": \"2025-04-15T11:30:00.000Z\",\r\n    \"seats_tvailable\": 100,\r\n    \"price\": 150.50\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flights",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flights"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener una lista de todos los vuelos",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flightNumber\": \"AV001\",\r\n    \"origin\": \"Buenos Aires\",\r\n    \"destination\": \"Córdoba\",\r\n    \"departureTime\": \"2025-04-15T10:00:00.000Z\",\r\n    \"arrivalTime\": \"2025-04-15T11:30:00.000Z\",\r\n    \"seatsAvailable\": 100,\r\n    \"price\": 150.50\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flights",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flights"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener un vuelo específico por su ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flightNumber\": \"AV001\",\r\n    \"origin\": \"Buenos Aires\",\r\n    \"destination\": \"Córdoba\",\r\n    \"departureTime\": \"2025-04-15T10:00:00.000Z\",\r\n    \"arrivalTime\": \"2025-04-15T11:30:00.000Z\",\r\n    \"seatsAvailable\": 100,\r\n    \"price\": 150.50\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flights/7ed30fcf-648a-478a-a5cd-306e229dbf63",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flights",
+								"7ed30fcf-648a-478a-a5cd-306e229dbf63"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar la información de un vuelo existente por su ID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flight_number\": \"AV005\",\r\n    \"origin\": \"Buenos Aires\",\r\n    \"destination\": \"Salta\",\r\n    \"departure_time\": \"2025-04-15T10:00:00.000Z\",\r\n    \"arrival_time\": \"2025-04-15T11:30:00.000Z\",\r\n    \"seats_tvailable\": 120,\r\n    \"price\": 300.50\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flights/bc3bf39a-505c-4811-ab4e-a5da789d784a",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flights",
+								"bc3bf39a-505c-4811-ab4e-a5da789d784a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar un vuelo por su ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flightNumber\": \"AV001\",\r\n    \"origin\": \"Buenos Aires\",\r\n    \"destination\": \"Córdoba\",\r\n    \"departureTime\": \"2025-04-15T10:00:00.000Z\",\r\n    \"arrivalTime\": \"2025-04-15T11:30:00.000Z\",\r\n    \"seatsAvailable\": 100,\r\n    \"price\": 150.50\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flights/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flights",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reservas",
+			"item": [
+				{
+					"name": "Crear una nueva reserva",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNjNTFkY2QzLTExODUtNGQzNy04NDRiLTNjNzM2OTliYzNmMCIsImlhdCI6MTc0NDg0MDE1NiwiZXhwIjoxNzQ0OTI2NTU2fQ.BwOt9igv-zzzbYf7FgjOICB9Qb5jRDNVq4rtczJW0IE",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flight_id\": \"7684ceba-f69c-496b-97f2-41c1261efe62\",\r\n    \"seat\": \"33T\",\r\n    \"booking_code\": \"ABC-333\",\r\n    \"total_price\": 100.99\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/bookings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener una lista de todas las reservas",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flightId\": \"ID del vuelo existente\",\r\n    \"userId\": \"ID del usuario existente\",\r\n    \"seat\": \"12A\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/bookings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener una reserva específica por su ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flightId\": \"ID del vuelo existente\",\r\n    \"userId\": \"ID del usuario existente\",\r\n    \"seat\": \"12A\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/bookings/847f672f-fa69-432e-bfd8-208142557303",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"bookings",
+								"847f672f-fa69-432e-bfd8-208142557303"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar el estado de una reserva",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"seat\": \"22C\",\r\n    \"total_price\": \"100.50\",\r\n    \"status\": \"confirmed\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/bookings/f6245c06-00f5-49ce-9f80-c117394bf89e",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"bookings",
+								"f6245c06-00f5-49ce-9f80-c117394bf89e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar una reserva por su ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"canceled\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/bookings/516ca03c-7923-425d-b600-8f30a8da7b68",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"bookings",
+								"516ca03c-7923-425d-b600-8f30a8da7b68"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
