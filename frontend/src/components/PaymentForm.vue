@@ -8,7 +8,7 @@
         @input="onCardNumberInput"
         maxlength="19"
         inputmode="numeric"
-        placeholder="1234-5678-9012-3456"
+        placeholder="xxxx-xxxx-xxxx-xxxx"
         required
 />
     </div>
@@ -28,10 +28,11 @@
       <input
         id="cvv"
         v-model="cvv"
-        maxlength="4"
+        maxlength="3"
         inputmode="numeric"
-        placeholder="123"
+        placeholder="xxx"
         required
+        @input="cvv = cvv.replace(/\D/g, '')"
       />
     </div>
     <button type="submit">Pagar</button>
@@ -86,7 +87,7 @@ function handlePayment() {
     return;
   }
   // CVV 3 o 4 dígitos
-  if (!/^\d{3,4}$/.test(cvv.value)) {
+  if (!/^\d{3}$/.test(cvv.value)) {
     error.value = 'CVV inválido.';
     return;
   }
