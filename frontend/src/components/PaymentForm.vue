@@ -17,7 +17,10 @@
       <input
         id="expiry"
         v-model="expiry"
+<<<<<<< HEAD
         @input="onExpiryInput"
+=======
+>>>>>>> f8305f1b9ef1628ce419c775e941299ce1a7019e
         maxlength="5"
         placeholder="MM/YY"
         required
@@ -41,8 +44,11 @@
 
 <script setup>
 import { ref, defineEmits } from 'vue';
+<<<<<<< HEAD
 import { formatCardNumber, formatExpiry } from "../utils/formatters.js";
 
+=======
+>>>>>>> f8305f1b9ef1628ce419c775e941299ce1a7019e
 
 const emit = defineEmits(['payment-success']);
 
@@ -51,6 +57,7 @@ const expiry = ref('');
 const cvv = ref('');
 const error = ref('');
 
+<<<<<<< HEAD
 const onCardNumberInput = (e) => {
   cardNumber.value = formatCardNumber(e.target.value);
 };
@@ -67,6 +74,14 @@ function handlePayment() {
   if (!/^\d{4}-\d{4}-\d{4}-\d{4}$/.test(cardNumber.value)) {
   error.value = "Número de tarjeta inválido. Debe tener el formato XXXX-XXXX-XXXX-XXXX.";
   return;
+=======
+function handlePayment() {
+  error.value = '';
+  // Solo números, 16 dígitos (permitir espacios)
+  if (!/^\d{4}\s?\d{4}\s?\d{4}\s?\d{4}$/.test(cardNumber.value.replace(/ +/g, ''))) {
+    error.value = 'Número de tarjeta inválido. Deben ser 16 dígitos.';
+    return;
+>>>>>>> f8305f1b9ef1628ce419c775e941299ce1a7019e
   }
   // MM/YY formato
   if (!/^\d{2}\/\d{2}$/.test(expiry.value)) {
@@ -98,8 +113,11 @@ function handlePayment() {
 }
 </script>
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> f8305f1b9ef1628ce419c775e941299ce1a7019e
 <style scoped>
 .error {
   color: #e74c3c;
