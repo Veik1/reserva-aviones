@@ -25,23 +25,29 @@
       <thead>
         <tr>
           <th>Número</th>
-          <th>Origen</th>
-          <th>Destino</th>
+          <th>Origen</th>      <!-- AÑADIR -->
+          <th>Destino</th>     <!-- AÑADIR -->
           <th>Salida</th>
-          <th>Ofertas de Clase</th> <!-- Nueva columna o forma de mostrar info -->
+          <th>Ofertas de Clase</th>
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="flight in flights" :key="flight.id">
           <td>{{ flight.flight_number }}</td>
-          <td>{{ flight.origin }}</td>
-          <td>{{ flight.destination }}</td>
+          <!-- Añadir los iata_code aquí -->
+          <td>
+            {{ flight.originAirport?.city?.name || flight.originAirport?.name || 'N/A' }}
+            ({{ flight.originAirport?.iata_code || 'N/A' }}) <!-- AÑADIR -->
+          </td>
+          <td>
+            {{ flight.destinationAirport?.city?.name || flight.destinationAirport?.name || 'N/A' }}
+            ({{ flight.destinationAirport?.iata_code || 'N/A' }}) <!-- AÑADIR -->
+          </td>
           <td>{{ formatDate(flight.departure_time) }}</td>
           <td>
-            <!-- Mostrar un resumen de las ofertas o un conteo -->
             <ul v-if="flight.offerings && flight.offerings.length > 0" class="offerings-summary">
-              <li v-for="offering in flight.offerings.slice(0, 2)" :key="offering.id"> <!-- Mostrar solo las primeras 2 por brevedad -->
+              <li v-for="offering in flight.offerings.slice(0, 2)" :key="offering.id">
                 {{ offering.flightClass?.name }}: u$s{{ parseFloat(offering.price).toFixed(2) }} ({{ offering.seats_available }} asientos)
               </li>
               <li v-if="flight.offerings.length > 2">... y {{ flight.offerings.length - 2 }} más</li>
@@ -52,8 +58,7 @@
             <button @click="openEditForm(flight)" class="button is-small is-warning">Editar Vuelo</button>
             <router-link
               :to="{ name: 'admin-flight-offerings', params: { flightId: flight.id } }"
-              class="button is-small is-info"
-            >
+              class="button is-small is-info">
               Gestionar Ofertas
             </router-link>
             <button @click="confirmDeleteFlight(flight.id)" class="button is-small is-danger">Eliminar Vuelo</button>

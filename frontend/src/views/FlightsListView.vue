@@ -1,19 +1,61 @@
 <template>
   <div class="flights-list-view">
-    <h2>Vuelos Disponibles</h2>
+
+    <AlertMessage v-if="error" type="error" :message="error" />
+    <div v-if="loading" class="loading">Cargando vuelos...</div>
 
     <!-- Sección de Filtros Avanzados -->
     <div class="filters-container card">
       <h4>Buscar Vuelos</h4>
       <div class="filters">
-        <div class="filter-group">
-          <label for="origin">Origen:</label>
-          <input type="text" id="origin" v-model="filters.origin" placeholder="Ciudad o aeropuerto">
+        <!-- Filtro por Origen (Autocompletado con Ciudad y Aeropuerto) -->
+        <div class="filter-group autocomplete-group">
+          <label for="originInput">Origen:</label>
+          <input
+            type="text"
+            id="originInput"
+            v-model="filters.originSearchTerm"
+            placeholder="Ciudad o aeropuerto"
+            @input="searchAirports('origin')"
+            @focus="showSuggestions.origin = true"
+            @blur="hideSuggestionsDelayed('origin')"
+            autocomplete="off"
+          />
+          <ul v-if="showSuggestions.origin && filteredOriginAirportSuggestions.length" class="autocomplete-suggestions">
+            <li
+              v-for="airport in filteredOriginAirportSuggestions"
+              :key="airport.id"
+              @mousedown.prevent="selectAirport('origin', airport)"
+            >
+              <strong>{{ airport.city?.name || 'Ciudad Desconocida' }}</strong> ({{ airport.iata_code }}) - {{ airport.name }}
+            </li>
+          </ul>
         </div>
-        <div class="filter-group">
-          <label for="destination">Destino:</label>
-          <input type="text" id="destination" v-model="filters.destination" placeholder="Ciudad o aeropuerto">
+
+        <!-- Filtro por Destino (Autocompletado con Ciudad y Aeropuerto) -->
+        <div class="filter-group autocomplete-group">
+          <label for="destinationInput">Destino:</label>
+          <input
+            type="text"
+            id="destinationInput"
+            v-model="filters.destinationSearchTerm"
+            placeholder="Ciudad o aeropuerto"
+            @input="searchAirports('destination')"
+            @focus="showSuggestions.destination = true"
+            @blur="hideSuggestionsDelayed('destination')"
+            autocomplete="off"
+          />
+          <ul v-if="showSuggestions.destination && filteredDestinationAirportSuggestions.length" class="autocomplete-suggestions">
+            <li
+              v-for="airport in filteredDestinationAirportSuggestions"
+              :key="airport.id"
+              @mousedown.prevent="selectAirport('destination', airport)"
+            >
+              <strong>{{ airport.city?.name || 'Ciudad Desconocida' }}</strong> ({{ airport.iata_code }}) - {{ airport.name }}
+            </li>
+          </ul>
         </div>
+
         <div class="filter-group">
           <label for="dateFrom">Fecha Desde:</label>
           <input type="date" id="dateFrom" v-model="filters.dateFrom">
@@ -46,52 +88,111 @@
       </div>
     </div>
 
-    <AlertMessage v-if="error" type="error" :message="error" />
-    <div v-if="loading" class="loading">Cargando vuelos...</div>
-    <!-- Mostrar resultados filtrados o todos los vuelos -->
-    <div v-else-if="displayedFlights.length > 0" class="flight-grid">
+    <div v-if="displayedFlights.length > 0" class="flight-grid">
       <FlightCard v-for="flight in displayedFlights" :key="flight.id" :flight="flight" />
     </div>
-    <div v-else>
-      <p>{{ hasAppliedFilters ? 'No se encontraron vuelos que coincidan con tu búsqueda.' : 'No hay vuelos disponibles en este momento.' }}</p>
+    <div v-else-if="!loading">
+        <p class="no-flights-message">
+            {{ hasAppliedFilters ? 'No se encontraron vuelos con estos criterios. Intenta ajustar tu búsqueda.' : 'No hay vuelos disponibles en este momento.' }}
+        </p>
+    </div>
+    <div v-else-if="loading" class="loading-message">
+      <div>Cargando vuelos...</div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, reactive, computed } from 'vue';
-import { fetchFlights, fetchFlightClasses } from '@/services/api'; // Asumimos que fetchFlightClasses existe
+import { fetchFlights, fetchFlightClasses, fetchAirports } from '@/services/api';
 import FlightCard from '@/components/FlightCard.vue';
 import AlertMessage from '@/components/AlertMessage.vue';
 
-const allFlights = ref([]); // Guardará todos los vuelos cargados inicialmente
-const displayedFlights = ref([]); // Vuelos que se muestran (filtrados o todos)
+const allFlights = ref([]);
+const displayedFlights = ref([]);
 const availableFlightClasses = ref([]);
+const allAirports = ref([]); // Almacena todos los aeropuertos para el autocompletado
 
 const loading = ref(true);
 const error = ref('');
-const hasAppliedFilters = ref(false); // Para cambiar el mensaje de "no vuelos"
+const hasAppliedFilters = ref(false);
 
 const filters = reactive({
-  origin: '',
-  destination: '',
+  originSearchTerm: '', // Texto que el usuario escribe para origen
+  destinationSearchTerm: '', // Texto que el usuario escribe para destino
+  originAirportId: '', // ID del aeropuerto seleccionado para origen
+  destinationAirportId: '', // ID del aeropuerto seleccionado para destino
   dateFrom: '',
   dateTo: '',
   flightClassId: '',
   priceMin: null,
-  priceMax: null,
+  priceMax: null
 });
+
+const showSuggestions = reactive({
+    origin: false,
+    destination: false
+});
+
+// Computed properties para filtrar las sugerencias de aeropuertos
+const filteredOriginAirportSuggestions = computed(() => {
+    if (!filters.originSearchTerm) return [];
+    return allAirports.value.filter(airport =>
+        airport.name.toLowerCase().includes(filters.originSearchTerm.toLowerCase()) ||
+        airport.iata_code.toLowerCase().includes(filters.originSearchTerm.toLowerCase()) ||
+        airport.city?.name.toLowerCase().includes(filters.originSearchTerm.toLowerCase())
+    ).slice(0, 10);
+});
+
+const filteredDestinationAirportSuggestions = computed(() => {
+    if (!filters.destinationSearchTerm) return [];
+    return allAirports.value.filter(airport =>
+        airport.name.toLowerCase().includes(filters.destinationSearchTerm.toLowerCase()) ||
+        airport.iata_code.toLowerCase().includes(filters.destinationSearchTerm.toLowerCase()) ||
+        airport.city?.name.toLowerCase().includes(filters.destinationSearchTerm.toLowerCase())
+    ).slice(0, 10);
+});
+
+// Retrasar el ocultamiento de las sugerencias para permitir el evento @mousedown
+let blurTimeout = {};
+const hideSuggestionsDelayed = (field) => {
+    blurTimeout[field] = setTimeout(() => {
+        showSuggestions[field] = false;
+    }, 150);
+};
+
+// Función para seleccionar un aeropuerto de las sugerencias
+const selectAirport = (field, airport) => {
+    clearTimeout(blurTimeout[field]);
+    const displayValue = `${airport.city?.name || 'Ciudad Desconocida'} (${airport.iata_code}) - ${airport.name}`;
+    if (field === 'origin') {
+        filters.originSearchTerm = displayValue;
+        filters.originAirportId = airport.id;
+    } else {
+        filters.destinationSearchTerm = displayValue;
+        filters.destinationAirportId = airport.id;
+    }
+    showSuggestions[field] = false;
+};
+
+const searchAirports = (field) => {
+    // La lógica de filtrado de sugerencias está en los computed properties
+    // No es necesario llamar a la API de aeropuertos de nuevo si ya los cargamos todos
+};
 
 const loadInitialData = async () => {
   loading.value = true; error.value = '';
   try {
-    const [flightsResponse, classesResponse] = await Promise.all([
+    const [flightsResponse, classesResponse, airportsResponse] = await Promise.all([
       fetchFlights(),
-      fetchFlightClasses() // Cargar clases para el dropdown de filtro
+      fetchFlightClasses(),
+      fetchAirports()
     ]);
+
     allFlights.value = flightsResponse.data || [];
-    displayedFlights.value = allFlights.value; // Inicialmente mostrar todos
+    displayedFlights.value = allFlights.value;
     availableFlightClasses.value = classesResponse.data || [];
+    allAirports.value = airportsResponse.data || []; // Almacena todos los aeropuertos para autocompletado
   } catch (err) {
     console.error("Error al cargar datos iniciales:", err);
     error.value = 'No se pudieron cargar los datos. Inténtalo de nuevo más tarde.';
@@ -104,31 +205,31 @@ onMounted(loadInitialData);
 
 const applyFilters = () => {
   hasAppliedFilters.value = true;
-  let result = [...allFlights.value]; // Empezar con todos los vuelos
+  let result = [...allFlights.value];
+  console.log('Aplicando filtros:', JSON.parse(JSON.stringify(filters))); // <-- AÑADIR ESTE LOG
+  console.log('Todos los vuelos:', JSON.parse(JSON.stringify(allFlights.value))); // <-- AÑADIR ESTE LOG (para ver si los IDs coinciden)
+  // Filtrar por ID de aeropuerto seleccionado (si hay uno)
+  if (filters.originAirportId) {
+    result = result.filter(f => f.originAirport?.id === filters.originAirportId);
+  }
+  if (filters.destinationAirportId) {
+    result = result.filter(f => f.destinationAirport?.id === filters.destinationAirportId);
+  }
 
-  // Filtrar por origen
-  if (filters.origin) {
-    result = result.filter(f => f.origin.toLowerCase().includes(filters.origin.toLowerCase()));
-  }
-  // Filtrar por destino
-  if (filters.destination) {
-    result = result.filter(f => f.destination.toLowerCase().includes(filters.destination.toLowerCase()));
-  }
-  // Filtrar por fecha desde
+  // Filtrar por fecha
   if (filters.dateFrom) {
-    const fromDate = new Date(filters.dateFrom + "T00:00:00Z"); // Asumir UTC para evitar problemas de zona
+    const fromDate = new Date(filters.dateFrom + "T00:00:00Z");
     result = result.filter(f => new Date(f.departure_time) >= fromDate);
   }
-  // Filtrar por fecha hasta
   if (filters.dateTo) {
     const toDate = new Date(filters.dateTo + "T23:59:59Z");
     result = result.filter(f => new Date(f.departure_time) <= toDate);
   }
 
-  // Filtrar por clase y precio (esto es más complejo porque están en las offerings)
+  // Filtrar por clase y precio
   if (filters.flightClassId || filters.priceMin !== null || filters.priceMax !== null) {
     result = result.filter(flight => {
-      if (!flight.offerings || flight.offerings.length === 0) return false; // Si no tiene ofertas, no pasa el filtro
+      if (!flight.offerings || flight.offerings.length === 0) return false;
 
       return flight.offerings.some(offering => {
         let classMatch = true;
@@ -151,17 +252,18 @@ const applyFilters = () => {
 };
 
 const resetFilters = () => {
-  filters.origin = '';
-  filters.destination = '';
+  filters.originSearchTerm = '';
+  filters.destinationSearchTerm = '';
+  filters.originAirportId = '';
+  filters.destinationAirportId = '';
   filters.dateFrom = '';
   filters.dateTo = '';
   filters.flightClassId = '';
   filters.priceMin = null;
   filters.priceMax = null;
-  displayedFlights.value = [...allFlights.value]; // Mostrar todos de nuevo
+  displayedFlights.value = [...allFlights.value];
   hasAppliedFilters.value = false;
 };
-
 </script>
 
 <style scoped>
@@ -178,18 +280,18 @@ const resetFilters = () => {
 .filters-container h4 {
   margin-top: 0;
   margin-bottom: 20px;
-  font-size: 1.2em;
+  font-size: 1.3em;
   color: #333;
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
 }
 .filters {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Columnas responsivas para filtros */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Columnas responsivas para filtros */
   gap: 15px 20px; /* Espacio entre grupos de filtro */
 }
 .filter-group { display: flex; flex-direction: column; }
-.filter-group label { margin-bottom: 6px; font-size: 0.85em; color: #555; font-weight: 500; }
+.filter-group label { margin-bottom: 6px; font-size: 0.95em; color: #555; font-weight: 500; }
 .filter-group input, .filter-group select {
   padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95em;
 }
@@ -210,7 +312,7 @@ const resetFilters = () => {
   display: grid;
   /* Puedes mantener o ajustar minmax. Si las tarjetas son más altas,
      quizás un poco más de ancho mínimo se vea mejor. */
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Ligeramente más ancho */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Ligeramente más ancho */
   gap: 25px; /* Un poco más de espacio */
   margin-top: 20px;
 }
@@ -227,10 +329,66 @@ const resetFilters = () => {
   flex-wrap: wrap; /* Para responsividad de filtros */
 }
 .filters input, .filters select {
+  width: 100%;
+  max-width: 200px; /* Ancho máximo para inputs y selects */
+  box-sizing: border-box;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 0.9em;
+  font-size: 1em;
 }
 /* ... (resto de los estilos si los tienes) ... */
+
+/* Nuevos estilos para el autocompletado */
+.autocomplete-group {
+    position: relative;
+}
+.autocomplete-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    max-height: 200px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 0 0 4px 4px;
+}
+.autocomplete-suggestions li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95em;
+    color: #333;
+}
+.autocomplete-suggestions li:last-child {
+    border-bottom: none;
+}
+.autocomplete-suggestions li:hover {
+    background-color: #f0f0f0;
+}
+.autocomplete-suggestions li strong {
+    color: #3498db;
+}
+
+/* Estilos para el select (si se mantiene, aunque para autocompletado se usa input) */
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.95em;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem top 50%;
+    background-size: 1em;
+    padding-right: 2.5rem;
+}
 </style>

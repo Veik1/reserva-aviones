@@ -1,13 +1,12 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelizeInstance = require('../../db/database.js'); // Asumiendo que este es tu objeto sequelize configurado
+const { Sequelize, DataTypes } = require('sequelize'); // Importar DataTypes aquí
+const sequelizeInstance = require('../../db/database.js'); // Tu instancia de Sequelize
 
 const db = {};
 const basename = path.basename(__filename);
 
-// Cargar todos los modelos de la carpeta actual automáticamente
 fs
   .readdirSync(__dirname)
   .filter(file => {
@@ -15,17 +14,15 @@ fs
       file.indexOf('.') !== 0 &&
       file !== basename &&
       file.slice(-3) === '.js' &&
-      file.indexOf('.test.js') === -1
+      file.indexOf('.test.js') === -1 // Evitar archivos de test
     );
   })
   .forEach(file => {
-    // const model = require(path.join(__dirname, file))(sequelizeInstance, Sequelize.DataTypes); // Modo antiguo
     const modelDefinition = require(path.join(__dirname, file));
-    const model = modelDefinition(sequelizeInstance, DataTypes); // Modo estándar
+    const model = modelDefinition(sequelizeInstance, DataTypes);
     db[model.name] = model;
   });
 
-// Ejecutar las asociaciones si están definidas
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
@@ -33,12 +30,6 @@ Object.keys(db).forEach(modelName => {
 });
 
 db.sequelize = sequelizeInstance;
-db.Sequelize = Sequelize;
+db.Sequelize = Sequelize; // La clase Sequelize, no la instancia
 
-// Eliminamos la función getDb y exportamos db directamente, que es más común
-// async function getDb() {
-//   return db;
-// }
-// module.exports = getDb;
-
-module.exports = db; // Exportar el objeto db completo
+module.exports = db;

@@ -124,24 +124,37 @@ exports.createBooking = async (req, res) => {
 
 exports.getBookings = async (req, res) => { // Para Admin
   try {
-    //const db = await getDb();
     const bookings = await db.Booking.findAll({
       include: [
         { model: db.User, as: 'user', attributes: ['id', 'name', 'email'] },
         {
           model: db.FlightOffering,
           as: 'flightOffering',
-          attributes: ['id', 'price', 'seats_available'], // Atributos de la oferta
-          include: [ // Anidar para obtener info de Vuelo y Clase
-            {
-              model: db.Flight,
-              as: 'flight',
-              attributes: ['id', 'flight_number', 'origin', 'destination', 'image_url']
-            },
+          attributes: ['id', 'price', 'seats_available'],
+          include: [
             {
               model: db.FlightClass,
               as: 'flightClass',
               attributes: ['id', 'name']
+            },
+            { // Vuelo asociado a la oferta
+              model: db.Flight,
+              as: 'flight',
+              attributes: ['id', 'flight_number', 'image_url', 'departure_time', 'arrival_time'],
+              include: [ // Anidar Aeropuertos y Ciudades DENTRO de Flight
+                {
+                  model: db.Airport,
+                  as: 'originAirport', // Alias definido en Flight.associate
+                  attributes: ['name', 'iata_code'],
+                  include: [{ model: db.City, as: 'city', attributes: ['name'] }]
+                },
+                {
+                  model: db.Airport,
+                  as: 'destinationAirport', // Alias definido en Flight.associate
+                  attributes: ['name', 'iata_code'],
+                  include: [{ model: db.City, as: 'city', attributes: ['name'] }]
+                }
+              ]
             }
           ]
         }
@@ -150,39 +163,47 @@ exports.getBookings = async (req, res) => { // Para Admin
     });
     res.json(bookings);
   } catch (error) {
-    console.error('Error al obtener todas las reservas:', error);
+    console.error('Error al obtener todas las reservas (admin):', error);
     res.status(500).json({ error: error.message });
   }
 };
 
 exports.getMyBookings = async (req, res) => {
   try {
-    //const db = await getDb();
     const userId = req.userId;
-
-    if (!userId) {
-      return res.status(401).json({ message: 'Usuario no autenticado.' });
-    }
+    if (!userId) { /* ... */ }
 
     const bookings = await db.Booking.findAll({
       where: { user_id: userId },
       include: [
-        // No necesitamos incluir User aquí ya que filtramos por user_id
         {
           model: db.FlightOffering,
           as: 'flightOffering',
-          attributes: ['id', 'price'], // El usuario no necesita ver seats_available de su oferta reservada
+          attributes: ['id', 'price'],
           include: [
-            {
-              model: db.Flight,
-              as: 'flight',
-              // Atributos completos del vuelo para el usuario
-              attributes: ['id', 'flight_number', 'origin', 'destination', 'departure_time', 'arrival_time', 'image_url']
-            },
             {
               model: db.FlightClass,
               as: 'flightClass',
-              attributes: ['id', 'name', 'description'] // Info completa de la clase
+              attributes: ['id', 'name', 'description']
+            },
+            { // Vuelo asociado a la oferta
+              model: db.Flight,
+              as: 'flight',
+              attributes: ['id', 'flight_number', 'departure_time', 'arrival_time', 'image_url'],
+              include: [ // Anidar Aeropuertos y Ciudades DENTRO de Flight
+                {
+                  model: db.Airport,
+                  as: 'originAirport', // Alias definido en Flight.associate
+                  attributes: ['name', 'iata_code'],
+                  include: [{ model: db.City, as: 'city', attributes: ['name'] }]
+                },
+                {
+                  model: db.Airport,
+                  as: 'destinationAirport', // Alias definido en Flight.associate
+                  attributes: ['name', 'iata_code'],
+                  include: [{ model: db.City, as: 'city', attributes: ['name'] }]
+                }
+              ]
             }
           ]
         }

@@ -15,7 +15,14 @@
       <!-- 2. Encabezado e Información General del Vuelo -->
       <div class="details-header">
         <h2>Vuelo {{ flight.flight_number }}</h2>
-        <p class="route-info">{{ flight.origin }} → {{ flight.destination }}</p>
+
+        <p class="route-info">
+          {{ flight.originAirport?.city?.name || flight.originAirport?.name || 'N/A' }}
+          ({{ flight.originAirport?.iata_code || 'N/A' }}) <!-- AÑADIR -->
+          →
+          {{ flight.destinationAirport?.city?.name || flight.destinationAirport?.name || 'N/A' }}
+          ({{ flight.destinationAirport?.iata_code || 'N/A' }}) <!-- AÑADIR -->
+        </p>
       </div>
       <div class="details-body general-info-body">
         <h3>Horarios</h3>

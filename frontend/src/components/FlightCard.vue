@@ -1,16 +1,25 @@
 <template>
   <div class="flight-card">
     <div class="card-image-container" v-if="flight.image_url">
-      <img :src="flight.image_url" :alt="`Vuelo ${flight.flight_number} a ${flight.destination}`" class="flight-image" @error="handleImageError">
+      <img :src="flight.image_url" :alt="`Vuelo ${flight.flight_number} a ${flight.destinationAirport?.city?.name || flight.destinationAirport?.name}`" class="flight-image" @error="handleImageError">
     </div>
     <div class="card-image-placeholder" v-else>
-       <span>✈️</span>
+      <span>✈️</span>
     </div>
 
+    <!-- Sección de Texto -->
     <div class="card-content">
       <h3>{{ flight.flight_number }}</h3>
-      <p><strong>Desde:</strong> {{ flight.origin }}</p>
-      <p><strong>Hasta:</strong> {{ flight.destination }}</p>
+      <p>
+          <strong>Desde:</strong>
+          {{ flight.originAirport?.city?.name || flight.originAirport?.name || 'N/A' }}
+           ({{ flight.originAirport?.iata_code || 'N/A' }}) <!-- AÑADIDO IATA Code -->
+      </p>
+      <p>
+          <strong>Hasta:</strong>
+            {{ flight.destinationAirport?.city?.name || flight.destinationAirport?.name || 'N/A' }}
+           ({{ flight.destinationAirport?.iata_code || 'N/A' }}) <!-- AÑADIDO IATA Code -->
+      </p>
       <p><strong>Partida:</strong> {{ formatDate(flight.departure_time) }}</p>
       <p><strong>Llegada:</strong> {{ formatDate(flight.arrival_time) }}</p>
 
@@ -31,13 +40,13 @@
         <router-link :to="{ name: 'flight-details', params: { id: flight.id } }" class="button is-small is-info">
            Ver detalles y Clases
         </router-link>
-        <!-- El botón de "Reservar ahora" se elimina de aquí, el usuario debe ir a detalles para elegir clase -->
+        <!-- El botón de "Reservar ahora" se elimina de aquí -->
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'; // Necesitaremos computed
+import { computed } from 'vue';
 import { useAuthStore } from '@/store/auth';
 import { formatDate } from '@/utils/formatters';
 
@@ -48,7 +57,7 @@ const props = defineProps({
   },
 });
 
-const authStore = useAuthStore(); // Lo mantenemos si se usa, aunque no en el template actual
+const authStore = useAuthStore();
 
 const handleImageError = (event) => {
   console.warn(`Error cargando imagen: ${props.flight.image_url}`);
@@ -57,17 +66,15 @@ const handleImageError = (event) => {
 // Computed property para obtener el precio más bajo
 const lowestPrice = computed(() => {
   if (props.flight && props.flight.offerings && props.flight.offerings.length > 0) {
-    // Convertir precios a número antes de encontrar el mínimo
     const prices = props.flight.offerings.map(offering => parseFloat(offering.price));
     return Math.min(...prices);
   }
-  return null; // O un valor por defecto si no hay ofertas o precios
+  return null;
 });
 
 // Computed property para obtener los nombres de las clases disponibles
 const availableClasses = computed(() => {
   if (props.flight && props.flight.offerings && props.flight.offerings.length > 0) {
-    // Usar un Set para evitar nombres de clase duplicados si la estructura de datos lo permitiera
     return [...new Set(props.flight.offerings.map(offering => offering.flightClass?.name).filter(name => name))];
   }
   return [];
@@ -75,9 +82,8 @@ const availableClasses = computed(() => {
 
 </script>
 
-<!-- Los estilos <style scoped> no necesitan cambios significativos por ahora,
-     a menos que quieras ajustar el espaciado de los nuevos párrafos de precio/clase. -->
 <style scoped>
+/* Estilos - Reutilizar los que tenías y que no dependen de información directa de airport/city */
 .flight-card {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -153,7 +159,7 @@ const availableClasses = computed(() => {
   border-top: 1px solid #f0f0f0;
   background-color: #fafafa;
   display: flex;
-  justify-content: flex-end; /* Cambiado para alinear solo un botón o si hay varios */
+  justify-content: flex-end;
   gap: 10px;
   margin-top: auto;
 }
@@ -161,4 +167,5 @@ const availableClasses = computed(() => {
 .button.is-info { background-color: #3498db; color: white; border: none; }
 /* Eliminado el estilo .button.is-success si ya no se usa aquí */
 .button:hover { opacity: 0.85; }
+
 </style>

@@ -72,6 +72,12 @@ export const deleteFlightOffering = (offeringId) => apiClient.delete(`/flightoff
 // --- FlightClass Service (NUEVO) ---
 export const fetchFlightClasses = () => apiClient.get('/flightclasses');
 
+// --- City Service (NUEVO) ---
+export const fetchCities = () => apiClient.get('/cities');
+
+// --- Airport Service (NUEVO) ---
+export const fetchAirports = (params) => apiClient.get('/airports', { params }); // params puede ser { cityId: '...' } o { search: '...' }
+
 // --- Booking Service ---
 export const createBooking = (bookingData) => apiClient.post('/bookings', bookingData); // Needs user/admin token
 export const fetchBookings = () => apiClient.get('/bookings'); // Needs admin token

@@ -26,7 +26,10 @@
       <tbody>
         <tr v-for="booking in bookings" :key="booking.id">
           <td>{{ booking.booking_code }}</td>
-          <td>{{ booking.flightOffering?.flight?.flight_number || 'N/A' }}</td>
+          <td>
+            {{ booking.flightOffering?.flight?.flight_number || 'N/A' }}
+            <small>({{ booking.flightOffering?.flight?.originAirport?.city?.name || booking.flightOffering?.flight?.originAirport?.name || 'N/A' }} → {{ booking.flightOffering?.flight?.destinationAirport?.city?.name || booking.flightOffering?.flight?.destinationAirport?.name || 'N/A' }})</small>
+          </td>
           <td>{{ booking.flightOffering?.flightClass?.name || 'N/A' }}</td>
           <td>{{ booking.user?.name || booking.user?.email || 'N/A' }}</td>
           <td>

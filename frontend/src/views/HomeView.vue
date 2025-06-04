@@ -34,14 +34,13 @@
                 <div v-else class="offer-image-placeholder">✈️</div>
               </div>
               <div class="offer-info">
-                <span class="offer-class-badge">{{ offering.flightClass?.name || 'Clase' }}</span>
-                <h4>{{ offering.flight.origin }} → {{ offering.flight.destination }}</h4>
-                <p class="flight-number">{{ offering.flight.flight_number }}</p>
-                <div class="price-container">
-                  <span class="offer-price">u$s {{ parseFloat(offering.price).toFixed(2) }}</span>
-                </div>
-                <span v-if="offering.seats_available > 0" class="seats-info">{{ offering.seats_available }} asientos</span>
-                <span v-else class="seats-info sold-out">Agotado</span>
+                  <span class="offer-class-badge">{{ offering.flightClass?.name || 'Clase' }}</span>
+                  <!-- Actualizar esta línea para mostrar origen y destino (ciudad) -->
+                  <h4>{{ offering.flight.originAirport?.city?.name || offering.flight.originAirport?.name || 'N/A' }} → {{ offering.flight.destinationAirport?.city?.name || offering.flight.destinationAirport?.name || 'N/A' }}</h4>
+                  <p class="flight-number">{{ offering.flight.flight_number }}</p>
+                  <p class="offer-price">u$s {{ parseFloat(offering.price).toFixed(2) }}</p>
+                  <span v-if="offering.seats_available > 0" class="seats-info">{{ offering.seats_available }} asientos</span>
+                  <span v-else class="seats-info sold-out">Agotado</span>
               </div>
             </router-link>
           </div>
@@ -104,8 +103,8 @@ const loadFeaturedOfferings = async () => {
                 flight: {
                   id: flight.id,
                   flight_number: flight.flight_number,
-                  origin: flight.origin,
-                  destination: flight.destination,
+                  originAirport: flight.originAirport,      // <--- AÑADIDO
+                  destinationAirport: flight.destinationAirport, // <--- AÑADIDO
                   image_url: flight.image_url
                 },
               });

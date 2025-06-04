@@ -141,7 +141,7 @@ module.exports = {
        // Ejemplo para IB501 (Madrid - Buenos Aires)
        {
         id: uuidv4(),
-        flight_id: flightMap['IB501'],
+        flight_id: flightMap['AV005'],
         flight_class_id: classMap['Economica'],
         seats_available: 170,
         price: 720.80,
@@ -150,7 +150,7 @@ module.exports = {
       },
       {
         id: uuidv4(),
-        flight_id: flightMap['IB501'],
+        flight_id: flightMap['AV005'],
         flight_class_id: classMap['Economica Premium'],
         seats_available: 30,
         price: 980.00,
