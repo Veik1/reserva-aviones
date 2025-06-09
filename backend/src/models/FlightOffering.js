@@ -53,6 +53,10 @@ module.exports = (sequelize) => {
       foreignKey: 'flight_offering_id',
       as: 'bookings'
     });
+    FlightOffering.hasMany(models.Seat, {
+      foreignKey: 'flight_offering_id',
+      as: 'seats' // Una oferta tiene muchos asientos
+    });
   };
 
   return FlightOffering;

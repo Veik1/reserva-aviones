@@ -104,6 +104,7 @@
 
 <script setup>
 import { ref, onMounted, reactive, computed } from 'vue';
+import * as api from '@/services/api'; 
 import { fetchFlights, fetchFlightClasses, fetchAirports } from '@/services/api';
 import FlightCard from '@/components/FlightCard.vue';
 import AlertMessage from '@/components/AlertMessage.vue';

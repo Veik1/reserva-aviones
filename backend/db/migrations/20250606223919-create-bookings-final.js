@@ -35,10 +35,20 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      seat: { // El asiento específico elegido
-        type: DataTypes.STRING(4),
-        allowNull: false
+      
+      // --- ¡¡ESTA ES LA CLAVE!! ASEGÚRATE DE QUE ESTÉ AQUÍ Y BIEN ESCRITA ---
+      seat_id: {
+        type: DataTypes.UUID,
+        allowNull: false, // Cambia a true si quieres que sea opcional
+        references: {
+          model: 'Seats', // ¡Nombre de la tabla 'Seats'!
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT' // No debe borrar el asiento si la reserva existe
       },
+      // --- FIN seat_id ---
+      
       total_price: { // Este precio vendrá de la FlightOffering
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false

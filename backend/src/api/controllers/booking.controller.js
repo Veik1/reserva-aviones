@@ -9,7 +9,7 @@ exports.createBooking = async (req, res) => {
   try {
     const {
       flight_offering_id, // CAMBIO: Recibimos el ID de la oferta
-      seat,
+      seat_ids,
       passenger_name,
       passenger_last_name,
       passenger_email,
@@ -17,10 +17,10 @@ exports.createBooking = async (req, res) => {
     } = req.body;
     const user_id = req.userId; // Obtenido del token
 
-    // --- Validaciones previas ---
-    if (!flight_offering_id || !seat || !passenger_name || !passenger_last_name || !passenger_email) {
+    // --- Validaciones ---
+    if (!flight_offering_id || !seat_ids || !Array.isArray(seat_ids) || seat_ids.length === 0 || !passenger_name || !passenger_last_name || !passenger_email) {
       await t.rollback();
-      return res.status(400).json({ error: 'Faltan campos obligatorios para la reserva.' });
+      return res.status(400).json({ error: 'Faltan campos obligatorios (oferta, al menos un asiento, pasajero).' });
     }
 
     // 1. Obtener el usuario para validar edad
@@ -33,7 +33,6 @@ exports.createBooking = async (req, res) => {
       await t.rollback();
       return res.status(400).json({ error: 'El usuario no tiene registrada una fecha de nacimiento para validar la edad.' });
     }
-
     const hoy = new Date();
     const fechaNac = new Date(user.fecha_nacimiento);
     let edad = hoy.getFullYear() - fechaNac.getFullYear();
@@ -46,25 +45,35 @@ exports.createBooking = async (req, res) => {
       return res.status(403).json({ error: 'El usuario debe ser mayor de 18 años para realizar una reserva.' });
     }
 
-    // 2. Obtener la FlightOffering y verificar asientos disponibles
-    const offering = await db.FlightOffering.findByPk(flight_offering_id, {
-        include: [ // Incluir el vuelo para el código de reserva
-            { model: db.Flight, as: 'flight', attributes: ['id', 'flight_number'] }
-        ],
-        transaction: t
+     // --- Obtener asientos y oferta ---
+    const selectedSeats = await db.Seat.findAll({
+        where: { id: seat_ids, is_available: true, flight_offering_id: flight_offering_id },
+        transaction: t,
+        include: [{ model: db.FlightOffering, as: 'flightOffering' }]
     });
 
-    if (!offering) {
+    if (selectedSeats.length !== seat_ids.length) {
       await t.rollback();
-      return res.status(404).json({ error: 'Oferta de vuelo no encontrada.' });
+      return res.status(400).json({ error: 'Alguno de los asientos seleccionados no es válido, no está disponible o no pertenece a esta oferta.' });
+    }
+    // Si algún asiento no está disponible, la consulta where: { is_available: true } ya lo filtraría.
+    // También se valida que todos los asientos pertenezcan a la misma oferta.
+    if (selectedSeats.some(seat => seat.flight_offering_id !== flight_offering_id)) {
+        await t.rollback();
+        return res.status(400).json({ error: 'Todos los asientos deben pertenecer a la misma oferta de vuelo.' });
     }
 
-    if (offering.seats_available <= 0) {
-      await t.rollback();
-      return res.status(400).json({ error: 'No hay asientos disponibles para esta clase en este vuelo.' });
+
+    // 3. Obtener la FlightOffering
+    const offering = selectedSeats[0].flightOffering; // La oferta del primer asiento (debería ser la misma para todos)
+    if (!offering) { await t.rollback(); return res.status(404).json({ error: 'Oferta de vuelo no asociada a los asientos.' }); }
+    if (offering.seats_available < seat_ids.length) {
+        await t.rollback();
+        return res.status(400).json({ error: `Solo quedan ${offering.seats_available} asientos disponibles para esta clase, pero intentas reservar ${seat_ids.length}.` });
     }
 
-    // 3. Generar booking_code si no se proporciona (mejor si es en backend)
+
+    // 4. Generar booking_code
     let finalBookingCode = booking_code;
     if (!finalBookingCode) {
         const flightNumberPart = offering.flight?.flight_number?.replace(/\s+/g, '') || 'FL';
@@ -74,38 +83,62 @@ exports.createBooking = async (req, res) => {
     }
 
 
-    // 4. Crear la reserva
+    // 5. Crear la reserva
     const bookingData = {
-      flight_offering_id,
-      user_id,
-      seat,
-      total_price: offering.price, // Tomar el precio de la oferta
+      flight_offering_id: offering.id,
+      user_id, 
+      //seat_id: selectedSeats[0].id, // Usamos el primer asiento como referencia
+      total_price: parseFloat(offering.price) * seat_ids.length, // Multiplicar por la cantidad de asientos
       passenger_name,
       passenger_last_name,
       passenger_email,
       booking_code: finalBookingCode,
-      status: 'confirmed' // O 'pending' si hay un paso de pago
+      status: 'confirmed'
     };
 
     const newBooking = await db.Booking.create(bookingData, { transaction: t });
 
-    // 5. Descontar un asiento del FlightOffering
-    await offering.decrement('seats_available', { by: 1, transaction: t });
+    // 6. Asociar los asientos a la reserva en la tabla intermedia BookingSeats
+    const bookingSeatsEntries = seat_ids.map(seatId => ({
+        booking_id: newBooking.id,
+        seat_id: seatId,
+        created_at: new Date(), // Asegúrate que BookingSeats tenga timestamps
+        updated_at: new Date()
+    }));
+    await db.BookingSeats.bulkCreate(bookingSeatsEntries, { transaction: t });
 
-    // Si todo fue bien, confirmar la transacción
-    await t.commit();
+     // 7. Marcar los asientos como no disponibles y descontar del contador de la oferta
+    await db.Seat.update({ is_available: false }, { where: { id: seat_ids }, transaction: t });
+    await offering.decrement('seats_available', { by: seat_ids.length, transaction: t });
+
+
+    await t.commit(); // Confirmar transacción
 
     // Devolver la reserva creada con información anidada
     const resultBooking = await db.Booking.findByPk(newBooking.id, {
         include: [
             { model: db.User, as: 'user', attributes: ['id', 'name', 'email'] },
+            // Incluimos los asientos a través de la relación belongsToMany
             {
-                model: db.FlightOffering,
-                as: 'flightOffering',
-                include: [
-                    { model: db.Flight, as: 'flight', attributes: { exclude: ['created_at', 'updated_at'] } },
-                    { model: db.FlightClass, as: 'flightClass', attributes: ['id', 'name'] }
-                ]
+              model: db.Seat,
+              as: 'seats', // <-- Alias 'seats' definido en Booking.js belongsToMany
+              attributes: ['seat_number']
+            },
+            {
+              model: db.FlightOffering,
+              as: 'flightOffering',
+              include: [
+                  {
+                    model: db.Flight,
+                    as: 'flight',
+                    attributes: { exclude: ['created_at', 'updated_at'] },
+                    include: [
+                        { model: db.Airport, as: 'originAirport', include: [{ model: db.City, as: 'city'}] },
+                        { model: db.Airport, as: 'destinationAirport', include: [{ model: db.City, as: 'city'}] }
+                    ]
+                  },
+                  { model: db.FlightClass, as: 'flightClass', attributes: ['id', 'name'] }
+              ],
             }
         ]
     });
@@ -113,10 +146,13 @@ exports.createBooking = async (req, res) => {
     res.status(201).json(resultBooking);
 
   } catch (error) {
-    await t.rollback(); // Asegurar rollback en cualquier error
+    await t.rollback();
     console.error('Error al crear reserva:', error);
     if (error.name === 'SequelizeUniqueConstraintError') {
-        return res.status(409).json({ error: 'El código de reserva ya existe o conflicto de asiento.' }); // Ajustar mensaje
+        return res.status(409).json({ error: 'El código de reserva ya existe o conflicto de asiento.' });
+    }
+    if (error.name === 'SequelizeForeignKeyConstraintError') {
+        return res.status(400).json({ error: 'ID de asiento o de oferta de vuelo inválido.' });
     }
     res.status(400).json({ error: error.message });
   }
@@ -127,6 +163,12 @@ exports.getBookings = async (req, res) => { // Para Admin
     const bookings = await db.Booking.findAll({
       include: [
         { model: db.User, as: 'user', attributes: ['id', 'name', 'email'] },
+        // Incluir los asientos a través de la relación belongsToMany
+        {
+            model: db.Seat,
+            as: 'seats', // Alias 'seats'
+            attributes: ['seat_number']
+        },
         {
           model: db.FlightOffering,
           as: 'flightOffering',
@@ -176,6 +218,11 @@ exports.getMyBookings = async (req, res) => {
     const bookings = await db.Booking.findAll({
       where: { user_id: userId },
       include: [
+        {
+            model: db.Seat,
+            as: 'seats', // Alias 'seats'
+            attributes: ['id', 'seat_number']
+        },
         {
           model: db.FlightOffering,
           as: 'flightOffering',
@@ -227,6 +274,11 @@ exports.getBookingById = async (req, res) => {
       include: [
         { model: db.User, as: 'user', attributes: ['id', 'name', 'email'] }, // Incluir para que el admin vea
         {
+            model: db.Seat,
+            as: 'seats', // Alias 'seats'
+            attributes: ['seat_number']
+        },
+        {
           model: db.FlightOffering,
           as: 'flightOffering',
           include: [
@@ -254,33 +306,34 @@ exports.getBookingById = async (req, res) => {
   }
 };
 
-exports.updateBooking = async (req, res) => { // Principalmente para que admin cambie estado
+exports.updateBooking = async (req, res) => {
   const { id: bookingId } = req.params;
-  // Solo permitir actualizar campos específicos, ej: status
-  const { status, seat, passenger_name, passenger_last_name, passenger_email } = req.body;
-  const userId = req.userId; // Para verificar si es admin
+  // --- CAMBIO: Solo permitimos actualizar el estado (status) y quizás los datos del pasajero ---
+  const { status, passenger_name, passenger_last_name, passenger_email } = req.body;
+  const userId = req.userId;
 
   const updateData = {};
-  if (status) updateData.status = status;
-  // Un admin podría querer editar más datos si es necesario
-  if (seat) updateData.seat = seat;
-  if (passenger_name) updateData.passenger_name = passenger_name;
-  if (passenger_last_name) updateData.passenger_last_name = passenger_last_name;
-  if (passenger_email) updateData.passenger_email = passenger_email;
-
+  if (status !== undefined) { // Usar !== undefined para permitir null o ""
+      updateData.status = status;
+  }
+  if (passenger_name !== undefined) {
+      updateData.passenger_name = passenger_name;
+  }
+  if (passenger_last_name !== undefined) {
+      updateData.passenger_last_name = passenger_last_name;
+  }
+  if (passenger_email !== undefined) {
+      updateData.passenger_email = passenger_email;
+  }
 
   if (Object.keys(updateData).length === 0) {
     return res.status(400).json({ error: 'No se proporcionaron datos para actualizar.' });
   }
 
   try {
-    //const db = await getDb();
-
-    // Verificar que quien actualiza es admin (o el dueño si solo actualiza ciertos campos)
     const requestingUser = await db.User.findByPk(userId);
     if (requestingUser?.role !== 'admin') {
-        // Podrías añadir lógica para que el usuario actualice algo, pero es más complejo
-        return res.status(403).json({ message: 'Solo los administradores pueden modificar reservas directamente.' });
+        return res.status(403).json({ message: 'Solo los administradores pueden modificar reservas.' });
     }
 
     const [updatedRows] = await db.Booking.update(updateData, {
@@ -288,7 +341,21 @@ exports.updateBooking = async (req, res) => { // Principalmente para que admin c
     });
 
     if (updatedRows > 0) {
-      const updatedBooking = await db.Booking.findByPk(bookingId, { /* ... include completo ... */ });
+      // Devolver la reserva actualizada con todos sus includes (importante para el frontend)
+      const updatedBooking = await db.Booking.findByPk(bookingId, {
+          include: [
+              { model: db.User, as: 'user', attributes: ['id', 'name', 'email'] },
+              { model: db.Seat, as: 'seats', attributes: ['seat_number'] }, // <-- Incluir asientos
+              {
+                  model: db.FlightOffering,
+                  as: 'flightOffering',
+                  include: [
+                      { model: db.Flight, as: 'flight', include: [ { model: db.Airport, as: 'originAirport', include: [{ model: db.City, as: 'city'}]}, { model: db.Airport, as: 'destinationAirport', include: [{ model: db.City, as: 'city'}]} ] },
+                      { model: db.FlightClass, as: 'flightClass' }
+                  ]
+              }
+          ]
+      });
       return res.json(updatedBooking);
     }
     return res.status(404).json({ message: 'Reserva no encontrada o sin cambios.' });
@@ -299,39 +366,51 @@ exports.updateBooking = async (req, res) => { // Principalmente para que admin c
 };
 
 exports.deleteBooking = async (req, res) => {
-  // La lógica de deleteBooking que ya tenías para verificar dueño o admin es buena.
-  // La diferencia ahora es que si se borra una reserva, NO se debería reponer el asiento automáticamente
-  // a menos que esa sea la lógica de negocio (ej. "cancelar" vs "eliminar").
-  // La implementación actual simplemente borra el registro.
+  const t = await db.sequelize.transaction(); // Iniciar transacción
+
   try {
-    //const db = await getDb();
-    const { Booking, User } = await db;
+    const { Booking, User, Seat, FlightOffering } = db;
     const bookingId = req.params.id;
     const userId = req.userId;
 
-    const booking = await db.Booking.findByPk(bookingId);
-    if (!booking) {
-      return res.status(404).json({ message: 'Reserva no encontrada' });
-    }
+    // 1. Encontrar la reserva con sus asientos asociados
+    const booking = await Booking.findByPk(bookingId, {
+      include: [
+        { model: db.Seat, as: 'seats', attributes: ['id', 'is_available'] }, // Incluir los asientos para reponer
+        { model: db.FlightOffering, as: 'flightOffering', attributes: ['id', 'seats_available'] } // Incluir la oferta para reponer contador
+      ],
+      transaction: t // La búsqueda también debe ser parte de la transacción
+    });
 
+    if (!booking) { await t.rollback(); return res.status(404).json({ message: 'Reserva no encontrada' }); }
+
+    // 2. Verificar Permisos
     const requestingUser = await User.findByPk(userId);
     const isAdmin = requestingUser?.role === 'admin';
 
     if (booking.user_id !== userId && !isAdmin) {
+      await t.rollback();
       return res.status(403).json({ message: 'No tienes permiso para eliminar esta reserva.' });
     }
 
-    // ANTES de borrar la reserva, podrías reponer el asiento si el status es 'confirmed' o 'pending'
-    // if (booking.status === 'confirmed' || booking.status === 'pending') {
-    //    const offering = await db.FlightOffering.findByPk(booking.flight_offering_id);
-    //    if (offering) {
-    //        await offering.increment('seats_available', { by: 1 });
-    //    }
-    // } // Esta lógica de reponer asiento es opcional y depende de tu negocio.
+    // 3. Reponer los asientos y el contador de la oferta (SI LA RESERVA ESTABA CONFIRMADA O PENDIENTE)
+    if (booking.status === 'confirmed' || booking.status === 'pending') {
+       const seatIdsToRepopulate = booking.seats.map(s => s.id); // Obtener IDs de todos los asientos de la reserva
+       if (seatIdsToRepopulate.length > 0) {
+           await Seat.update({ is_available: true }, { where: { id: seatIdsToRepopulate }, transaction: t }); // Marcar asientos como disponibles
+       }
+       if (booking.flightOffering) {
+           await booking.flightOffering.increment('seats_available', { by: seatIdsToRepopulate.length, transaction: t }); // Aumentar contador de la oferta
+       }
+    }
 
-    await booking.destroy();
-    return res.status(204).send();
+    // 4. Eliminar la reserva
+    await booking.destroy({ transaction: t }); // La eliminación también debe ser parte de la transacción
+    await t.commit(); // Confirmar la transacción
+
+    return res.status(204).send(); // No Content, indica éxito
   } catch (error) {
+     await t.rollback(); // Asegurar rollback si algo falla
      console.error('Error al eliminar reserva:', error);
      res.status(500).json({ error: error.message });
   }

@@ -36,7 +36,7 @@
              {{ booking.passenger_name }} {{ booking.passenger_last_name }}
              <small v-if="booking.passenger_email">({{ booking.passenger_email }})</small>
           </td>
-          <td>{{ booking.seat }}</td>
+          <td>{{ booking.seat?.seat_number || 'N/A' }}</td>
           <td>${{ parseFloat(booking.total_price).toFixed(2) }}</td>
           <td>
             <!-- Edición de estado -->

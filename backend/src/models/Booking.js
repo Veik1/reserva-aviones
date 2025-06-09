@@ -14,25 +14,27 @@ module.exports = (sequelize) => {
       allowNull: false,
       unique: true
     },
-    // flight_id: { // <-- ELIMINADO, ahora se usa flight_offering_id
-    //   type: DataTypes.UUID,
-    //   allowNull: false
-    // },
-    flight_offering_id: { // <-- NUEVA FK
+    flight_offering_id: {
       type: DataTypes.UUID,
       allowNull: false
-      // references ya está definido en la migración
     },
     user_id: {
       type: DataTypes.UUID,
       allowNull: false
-      // references ya está definido en la migración
     },
-    seat: {
-      type: DataTypes.STRING(4),
-      allowNull: false
-    },
-    total_price: { // Este precio debe coincidir con el de FlightOffering en el momento de la reserva
+    // --- CAMBIO CLAVE: Eliminamos seat_id directamente de Booking ---
+    // seat_id: {
+    //   type: DataTypes.UUID,
+    //   allowNull: false,
+    //   references: {
+    //     model: 'Seats',
+    //     key: 'id'
+    //   },
+    //   onUpdate: 'CASCADE',
+    //   onDelete: 'RESTRICT'
+    // },
+    // --- FIN CAMBIO CLAVE ---
+    total_price: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false
     },
@@ -40,18 +42,9 @@ module.exports = (sequelize) => {
       type: DataTypes.ENUM('confirmed', 'pending', 'canceled'),
       defaultValue: 'confirmed'
     },
-    passenger_name: {
-      type: DataTypes.STRING,
-      allowNull: true // O false si siempre es obligatorio
-    },
-    passenger_last_name: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    passenger_email: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
+    passenger_name: { type: DataTypes.STRING, allowNull: true },
+    passenger_last_name: { type: DataTypes.STRING, allowNull: true },
+    passenger_email: { type: DataTypes.STRING, allowNull: true }
   }, {
     tableName: 'Bookings',
     timestamps: true,
@@ -60,17 +53,25 @@ module.exports = (sequelize) => {
 
   Booking.associate = (models) => {
     Booking.belongsTo(models.User, {
-      foreignKey: 'user_id', // Corregido
+      foreignKey: 'user_id',
       as: 'user'
     });
-    // Booking.belongsTo(models.Flight, { // <-- ELIMINADO
-    //   foreignKey: 'flight_id', // Corregido
-    //   as: 'flight'
-    // });
-    Booking.belongsTo(models.FlightOffering, { // <-- NUEVA ASOCIACIÓN
+    Booking.belongsTo(models.FlightOffering, {
       foreignKey: 'flight_offering_id',
-      as: 'flightOffering' // Una reserva pertenece a una oferta específica
+      as: 'flightOffering'
     });
+    // --- CAMBIO CLAVE: Eliminamos belongsTo(Seat) y añadimos belongsToMany ---
+    // Booking.belongsTo(models.Seat, {
+    //   foreignKey: 'seat_id',
+    //   as: 'seat'
+    // });
+    Booking.belongsToMany(models.Seat, { // Una reserva tiene muchos asientos
+      through: 'BookingSeats', // A través de la tabla intermedia BookingSeats
+      foreignKey: 'booking_id', // Clave foránea en BookingSeats que apunta a Bookings
+      otherKey: 'seat_id', // Clave foránea en BookingSeats que apunta a Seats
+      as: 'seats' // Alias para acceder a los asientos desde una reserva
+    });
+    // --- FIN CAMBIO CLAVE ---
   };
   return Booking;
 };

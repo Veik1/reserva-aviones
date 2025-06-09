@@ -88,4 +88,6 @@ export const fetchBookingById = (id) => apiClient.get(`/bookings/${id}`); // Nee
 export const updateBooking = (id, bookingData) => apiClient.put(`/bookings/${id}`, bookingData); // Needs user/admin token
 export const deleteBooking = (id) => apiClient.delete(`/bookings/${id}`); // Needs admin token
 
+export const fetchSeatsByOffering = (offeringId) => apiClient.get(`/flightofferings/${offeringId}/seats`);
+
 export default apiClient; // Export the configured instance
