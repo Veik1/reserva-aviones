@@ -91,7 +91,13 @@
         </div>
             <div class="card-cvv-wrapper">
                 <label for="cardCvv">CVV:</label>
-                <input type="text" id="cardCvv" v-model="paymentData.cardCvv" @input="validatePayment" placeholder="XXX" maxlength="4">
+                <input
+                type="text"
+                v-model="paymentData.cardCvv"
+                placeholder="XXX"
+                maxlength="3"
+                @input="paymentData.cardCvv = paymentData.cardCvv.replace(/\D/g, '')"
+                />
                 <span v-if="paymentErrors.cardCvv" class="error-message">{{ paymentErrors.cardCvv }}</span>
             </div>
         </div>
@@ -168,8 +174,8 @@ const validatePayment = () => {
 
      // Validación de Número de Tarjeta
     const cardNumberClean = paymentData.cardNumber.replace(/[\s-]/g, ''); // Limpiar espacios Y guiones
-    if (!cardNumberClean || !/^\d{13,19}$/.test(cardNumberClean)) { // Permitir entre 13 y 19 dígitos
-        paymentErrors.cardNumber = 'Número de tarjeta debe tener entre 13 y 19 dígitos.';
+    if (!cardNumberClean || !/^\d{16}$/.test(cardNumberClean)) { // Permitir entre 13 y 19 dígitos
+        paymentErrors.cardNumber = 'Número de tarjeta debe tener 16 dígitos.';
         isValidOverall = false;
     }
 
@@ -195,8 +201,8 @@ const validatePayment = () => {
     }
 
     // CVV
-    if (!paymentData.cardCvv || !/^\d{3,4}$/.test(paymentData.cardCvv)) {
-        paymentErrors.cardCvv = 'CVV inválido (3 o 4 dígitos).';
+    if (!paymentData.cardCvv || !/^\d{3}$/.test(paymentData.cardCvv)) {
+        paymentErrors.cardCvv = 'CVV inválido (3 dígitos).';
         isValidOverall = false;
     }
 
