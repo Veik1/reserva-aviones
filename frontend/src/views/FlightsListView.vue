@@ -137,22 +137,23 @@ const showSuggestions = reactive({
 
 // Computed properties para filtrar las sugerencias de aeropuertos
 const filteredOriginAirportSuggestions = computed(() => {
-    if (!filters.originSearchTerm) return [];
-    return allAirports.value.filter(airport =>
-        airport.name.toLowerCase().includes(filters.originSearchTerm.toLowerCase()) ||
-        airport.iata_code.toLowerCase().includes(filters.originSearchTerm.toLowerCase()) ||
-        airport.city?.name.toLowerCase().includes(filters.originSearchTerm.toLowerCase())
-    ).slice(0, 10);
+  if (filters.originSearchTerm.length < 3) return []; // 👈 Limita a 3 caracteres
+  return allAirports.value.filter(airport =>
+    airport.name.toLowerCase().includes(filters.originSearchTerm.toLowerCase()) ||
+    airport.iata_code.toLowerCase().includes(filters.originSearchTerm.toLowerCase()) ||
+    airport.city?.name.toLowerCase().includes(filters.originSearchTerm.toLowerCase())
+  ).slice(0, 10);
 });
 
 const filteredDestinationAirportSuggestions = computed(() => {
-    if (!filters.destinationSearchTerm) return [];
-    return allAirports.value.filter(airport =>
-        airport.name.toLowerCase().includes(filters.destinationSearchTerm.toLowerCase()) ||
-        airport.iata_code.toLowerCase().includes(filters.destinationSearchTerm.toLowerCase()) ||
-        airport.city?.name.toLowerCase().includes(filters.destinationSearchTerm.toLowerCase())
-    ).slice(0, 10);
+  if (filters.destinationSearchTerm.length < 3) return []; // 👈 Limita a 3 caracteres
+  return allAirports.value.filter(airport =>
+    airport.name.toLowerCase().includes(filters.destinationSearchTerm.toLowerCase()) ||
+    airport.iata_code.toLowerCase().includes(filters.destinationSearchTerm.toLowerCase()) ||
+    airport.city?.name.toLowerCase().includes(filters.destinationSearchTerm.toLowerCase())
+  ).slice(0, 10);
 });
+
 
 // Retrasar el ocultamiento de las sugerencias para permitir el evento @mousedown
 let blurTimeout = {};

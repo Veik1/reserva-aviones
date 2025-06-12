@@ -301,7 +301,7 @@ h4 { margin-bottom: 10px; }
     display: grid;
     /* Ejemplo para 3 asientos - pasillo - 3 asientos */
     grid-template-columns:
-        minmax(10px, 1fr) 1px minmax(10px, 1fr)  minmax(10px, 1fr) 1px minmax(10px, 1fr)
+        minmax(10px, 1fr) 1px minmax(10px, 1fr)
         minmax(10px, 1fr) 1px minmax(10px, 1fr);
     
     gap: 4px 6px; /* gap vertical y horizontal más pequeño */
