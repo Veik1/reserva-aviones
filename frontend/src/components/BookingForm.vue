@@ -30,7 +30,7 @@
           </div>
         </div>
          <hr>
-        <h4>Detalles del pasajero</h4>
+        <h4>Detalles del pasajero principal</h4>
          <div class="form-group">
             <label for="passenger_name">Nombre del pasajero:</label>
              <!-- Cambiado localBookingData por props.bookingData -->
@@ -46,6 +46,27 @@
              <!-- Cambiado localBookingData por props.bookingData -->
             <input type="email" id="passenger_email" :value="props.bookingData.passenger_email" @input="updateParentData ('passenger_email', $event.target.value)" required>
         </div>
+        <!-- *** NUEVA SECCIÓN PARA PASAJEROS ADICIONALES *** -->
+        <div v-if="selectedSeats.length > 1"> <!-- Mostrar solo si se seleccionó más de 1 asiento -->
+            <hr>
+            <h4>Detalles de pasajeros adicionales ({{ selectedSeats.length - 1 }})</h4>
+            <div v-for="(seatId, index) in selectedSeats.slice(1)" :key="seatId" class="additional-passenger-group">
+                <h5>Pasajero {{ index + 1 }} (Asiento {{ getSeatNumberById(seatId) }}):</h5>
+                <div class="form-group">
+                    <label :for="'add_passenger_name_' + seatId">Nombre:</label>
+                    <input type="text" :id="'add_passenger_name_' + seatId" v-model="additionalPassengers[seatId].name" required>
+                </div>
+                 <div class="form-group">
+                    <label :for="'add_passenger_last_name_' + seatId">Apellido:</label>
+                    <input type="text" :id="'add_passenger_last_name_' + seatId" v-model="additionalPassengers[seatId].lastName" required>
+                </div>
+                 <div class="form-group">
+                    <label :for="'add_passenger_email_' + seatId">Email:</label>
+                    <input type="email" :id="'add_passenger_email_' + seatId" v-model="additionalPassengers[seatId].email">
+                </div>
+            </div>
+        </div>
+        <!-- *** FIN NUEVA SECCIÓN *** -->
          <hr>
         <h4>Información de Pago</h4>
         <div class="form-group">
@@ -109,7 +130,6 @@
 
 <script setup>
 import { computed, onMounted, ref, watch, reactive } from 'vue';
-
 import * as api from '@/services/api';
 
 const props = defineProps({
@@ -138,6 +158,167 @@ const paymentErrors = reactive({
     cardCvv: ''
 });
 
+const additionalPassengers = reactive({}); // Objeto donde la clave es el seatId y el valor es {name, lastName, email}
+
+// Helper para obtener número de asiento dado un ID (para la etiqueta)
+const getSeatNumberById = (seatId) => {
+    const seat = availableSeats.value.find(s => s.id === seatId);
+    return seat ? seat.seat_number : 'N/A';
+};
+
+// Modificar toggleSeatSelection para manejar el estado de additionalPassengers
+const toggleSeatSelection = (seat) => {
+    if (!seat.is_available) return; // No se puede seleccionar si no está disponible
+
+    const index = selectedSeats.value.indexOf(seat.id);
+    if (index > -1) {
+        // Si el asiento YA ESTABA seleccionado, deseleccionarlo (eliminarlo del array)
+        selectedSeats.value.splice(index, 1);
+        // Si se deselecciona un asiento, eliminar sus datos de pasajero adicional
+        if (additionalPassengers[seat.id]) {
+            delete additionalPassengers[seat.id];
+        }
+    } else {
+        // Si el asiento NO ESTABA seleccionado, seleccionarlo (añadir al array)
+        selectedSeats.value.push(seat.id); // <--- ¡CAMBIO CLAVE: AÑADIR!
+        // Si se selecciona un asiento, inicializar sus datos de pasajero adicional
+        if (!additionalPassengers[seat.id]) {
+            additionalPassengers[seat.id] = { name: '', lastName: '', email: '' };
+        }
+    }
+    updateParentData(); // Emitir el estado completo después de cambiar la selección
+};
+
+
+// Modificar updateParentData para incluir los detalles de pasajeros adicionales
+const updateParentData = (field, value) => {
+    const updatedData = { ...props.bookingData };
+    if (field) {
+        updatedData[field] = value;
+    }
+
+    updatedData.seat_ids = selectedSeats.value;
+    updatedData.total_price = totalPrice.value;
+
+    // --- INCLUIR DATOS DE PASAJEROS ADICIONALES ---
+    // Crear un array de detalles solo para los asientos que NO son el primero seleccionado
+    // Si el primer asiento es para el 'pasajero principal'
+    const principalSeatId = selectedSeats.value[0];
+    const passengersDetailsArray = selectedSeats.value
+        .filter(seatId => seatId !== principalSeatId && additionalPassengers[seatId]) // Solo asientos adicionales con datos
+        .map(seatId => ({ // Formato esperado por el backend (si lo guardara)
+            seat_id: seatId, // Asociar detalles a este asiento
+            name: additionalPassengers[seatId].name,
+            lastName: additionalPassengers[seatId].lastName,
+            email: additionalPassengers[seatId].email
+        }));
+
+    updatedData.passengers_details = passengersDetailsArray; // Añadir al objeto emitido
+    // --- FIN INCLUIR DATOS ---
+
+    // Datos de pago (aunque no se guardan en DB, se pueden pasar si es necesario para validación)
+    updatedData.payment_data = {
+        cardNumber: paymentData.cardNumber,
+        cardExpiry: `${paymentData.cardExpiryMonth}/${paymentData.cardExpiryYear}`, // Unir para posible uso
+        cardCvv: paymentData.cardCvv
+    };
+
+
+    emit('update:bookingData', updatedData);
+    console.log('[BookingForm] Objeto emitido:', JSON.parse(JSON.stringify(updatedData)));
+
+    // No llamar a validatePayment aquí, se llama en el watcher
+};
+
+// --- LÓGICA DE VALIDACIÓN DE PAGO COMPLETA ---
+const validatePayment = () => {
+    paymentErrors.cardNumber = '';
+    paymentErrors.cardExpiry = ''; // Error general para la fecha
+    paymentErrors.cardCvv = '';
+    let isValidOverall = true; // <-- Usar esta para el resultado final
+
+     // Validación de Número de Tarjeta
+    const cardNumberClean = paymentData.cardNumber.replace(/[\s-]/g, '');
+    if (!cardNumberClean || !/^\d{16}$/.test(cardNumberClean)) { // Asumiendo 16 dígitos exactos
+        paymentErrors.cardNumber = 'Número de tarjeta debe tener 16 dígitos.';
+        isValidOverall = false;
+    }
+
+    // Fecha de Vencimiento
+    const month = parseInt(paymentData.cardExpiryMonth, 10);
+    const yearLastTwoDigits = parseInt(paymentData.cardExpiryYear, 10);
+
+    if (isNaN(month) || month < 1 || month > 12 || isNaN(yearLastTwoDigits) ||
+        paymentData.cardExpiryYear.length !== 2) {
+        paymentErrors.cardExpiry = 'Fecha inválida (MM/AA).';
+        isValidOverall = false;
+    } else {
+        const currentYearFull = new Date().getFullYear();
+        const currentMonth = new Date().getMonth() + 1;
+        const fullYear = 2000 + yearLastTwoDigits;
+
+        if (fullYear < currentYearFull || (fullYear === currentYearFull && month < currentMonth)) {
+            paymentErrors.cardExpiry = 'Tarjeta vencida.';
+            isValidOverall = false;
+        }
+    }
+
+    // CVV
+    if (!paymentData.cardCvv || !/^\d{3}$/.test(paymentData.cardCvv)) { // Asumiendo 3 dígitos exactos
+        paymentErrors.cardCvv = 'CVV inválido (3 dígitos).';
+        isValidOverall = false;
+    }
+
+    // Validar campos de pasajeros adicionales si existen
+    if (selectedSeats.value.length > 1) {
+        const principalSeatId = selectedSeats.value[0];
+        selectedSeats.value.filter(seatId => seatId !== principalSeatId).forEach(seatId => {
+             const passenger = additionalPassengers[seatId];
+             // Nombre y apellido obligatorios para adicionales
+             if (!passenger || !passenger.name || !passenger.lastName) {
+                 isValidOverall = false;
+             }
+        });
+    }
+
+    emit('update:paymentValidity', isValidOverall); // Emitir el resultado FINAL
+    return isValidOverall; // <--- ¡ESTE RETURN DEBE ESTAR AQUÍ!
+}; // <--- ¡Y LA LLAVE DE CIERRE DE validatePayment AQUÍ!
+
+
+// --- FUNCIONES DE FORMATO PARA UX ---
+const formatCardNumberAndValidate = () => {
+    let value = paymentData.cardNumber.replace(/\D/g, '');
+    let formattedValue = '';
+    value = value.substring(0, 16); // Limitar a 16 dígitos
+    for (let i = 0; i < value.length; i += 4) {
+        formattedValue += value.substring(i, Math.min(i + 4, value.length));
+        if (i + 4 < value.length) {
+            formattedValue += ' - ';
+        }
+    }
+     paymentData.cardNumber = formattedValue; // El v-model se actualiza con el formato
+    validatePayment(); // Validar después de formatear
+};
+
+const formatExpiryMonthAndValidate = () => {
+    paymentData.cardExpiryMonth = paymentData.cardExpiryMonth.replace(/\D/g, '').substring(0, 2);
+    if (paymentData.cardExpiryMonth.length === 2 && paymentData.cardExpiryYear.length !== 2) {
+        document.getElementById('cardExpiryYear')?.focus();
+    }
+    validatePayment();
+};
+
+const formatExpiryYearAndValidate = () => {
+    paymentData.cardExpiryYear = paymentData.cardExpiryYear.replace(/\D/g, '').substring(0, 2);
+    validatePayment();
+};
+// --- FIN FUNCIONES DE FORMATO ---
+
+const getSelectedSeatNumbers = () => {
+    return selectedSeats.value.map(id => availableSeats.value.find(s => s.id === id)?.seat_number).filter(Boolean);
+};
+
 const loadSeats = async () => {
     loadingSeats.value = true;
     try {
@@ -161,118 +342,21 @@ const loadSeats = async () => {
         loadingSeats.value = false;
     }
 };
-watch(() => props.bookingData.flight_offering_id, (newOfferingId) => {
-    if (newOfferingId) loadSeats();
-}, { immediate: true });
-
-const validatePayment = () => {
-    paymentErrors.cardNumber = '';
-    paymentErrors.cardExpiry = '';
-    paymentErrors.cardCvv = '';
-    let isValidOverall = true;
-    let isValid = true;
-
-     // Validación de Número de Tarjeta
-    const cardNumberClean = paymentData.cardNumber.replace(/[\s-]/g, ''); // Limpiar espacios Y guiones
-    if (!cardNumberClean || !/^\d{16}$/.test(cardNumberClean)) { // Permitir entre 13 y 19 dígitos
-        paymentErrors.cardNumber = 'Número de tarjeta debe tener 16 dígitos.';
-        isValidOverall = false;
-    }
-
-    // Fecha de Vencimiento
-    const month = parseInt(paymentData.cardExpiryMonth, 10);
-    const yearLastTwoDigits = parseInt(paymentData.cardExpiryYear, 10);
-
-    if (isNaN(month) || month < 1 || month > 12 || isNaN(yearLastTwoDigits) || 
-    paymentData.cardExpiryYear.length !== 2) {
-        paymentErrors.cardExpiry = 'Fecha inválida (MM/AA).';
-        isValidOverall = false;
-        isValid = false;
-    } else {
-        const currentYearFull = new Date().getFullYear();
-        const currentMonth = new Date().getMonth() + 1;
-        const fullYear = 2000 + yearLastTwoDigits;
-
-        if (fullYear < currentYearFull || (fullYear === currentYearFull && month < currentMonth)) {
-            paymentErrors.cardExpiry = 'Tarjeta vencida.';
-            isValidOverall = false;
-            isValid = false;
-        }
-    }
-
-    // CVV
-    if (!paymentData.cardCvv || !/^\d{3}$/.test(paymentData.cardCvv)) {
-        paymentErrors.cardCvv = 'CVV inválido (3 dígitos).';
-        isValidOverall = false;
-    }
-
-    emit('update:paymentValidity', isValidOverall);
-    return isValidOverall;
-};
-
-const formatCardNumberAndValidate = () => { // Esta función estaba mezclada con la anterior
-    let value = paymentData.cardNumber.replace(/\D/g, '');
-    let formattedValue = '';
-    value = value.substring(0, 16); // Limitar a 16 dígitos
-    for (let i = 0; i < value.length; i += 4) {
-        formattedValue += value.substring(i, Math.min(i + 4, value.length));
-        if (i + 4 < value.length) {
-            formattedValue += ' - ';
-        }
-    }
-     paymentData.cardNumber = formattedValue; // El v-model se actualiza con el formato
-    validatePayment();
-};
-
-const formatExpiryMonthAndValidate = () => {
-    paymentData.cardExpiryMonth = paymentData.cardExpiryMonth.replace(/\D/g, '').substring(0, 2);
-    if (paymentData.cardExpiryMonth.length === 2 && paymentData.cardExpiryYear.length !== 2) {
-        document.getElementById('cardExpiryYear')?.focus();
-    }
-    validatePayment();
-};
-
-const formatExpiryYearAndValidate = () => {
-    paymentData.cardExpiryYear = paymentData.cardExpiryYear.replace(/\D/g, '').substring(0, 2);
-    validatePayment();
-};
-
-// --- FUNCIÓN CENTRALIZADA Y ÚNICA PARA EMITIR CAMBIOS ---
-const updateParentData = (field, value) => {
-    const updatedData = { ...props.bookingData };
-    if (field) {
-        updatedData[field] = value;
-    }
-    updatedData.seat_ids = selectedSeats.value;
-    updatedData.total_price = totalPrice.value;
-    emit('update:bookingData', updatedData);
-    console.log('[BookingForm] Objeto emitido:', JSON.parse(JSON.stringify(updatedData)));
-};
-
-const toggleSeatSelection = (seat) => {
-    if (!seat.is_available) return;
-    const index = selectedSeats.value.indexOf(seat.id);
-    if (index > -1) {
-        selectedSeats.value.splice(index, 1);
-    } else {
-        selectedSeats.value.push(seat.id);
-    }
-    updateParentData();
-};
-
-const getSelectedSeatNumbers = () => {
-    return selectedSeats.value.map(id => availableSeats.value.find(s => s.id === id)?.seat_number).filter(Boolean);
-};
 
 onMounted(() => {
-    // loadSeats(); // loadSeats ya se llama en el watch con immediate:true
-    validatePayment();
+    loadSeats();
+    validatePayment(); // Validar al montar para establecer el estado inicial
 });
 
-watch(paymentData, () => { validatePayment(); }, { deep: true });
-watch(() => props.bookingData.flight_offering_id, (newOfferingId) => {
-    if (newOfferingId) loadSeats();
-}, { immediate: true });
+// Watch para validar automáticamente cuando los datos de pago o asientos cambian
+watch([
+    paymentData, // Si cambia cualquier propiedad dentro de paymentData
+    selectedSeats // Si el array de asientos seleccionados cambia
+], () => {
+    validatePayment(); // Volver a validar todo
+    // Si selectedSeats.value.length cambia, también necesitamos actualizar additionalPassengers
+    // Esta lógica ya está en toggleSeatSelection, pero si se necesita en otros escenarios, considéralo.
+}, { deep: true }); // Observar cambios profundos en paymentData y el array selectedSeats
 
 </script>
 

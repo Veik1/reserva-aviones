@@ -92,6 +92,7 @@ const bookingData = reactive({
   passenger_name: '',
   passenger_last_name: '',
   passenger_email: '',
+  passengers_details: [], // <--- Nuevo array para detalles de pasajeros adicionales
   booking_code: '',
   total_price: 0,
   status: 'confirmed'
