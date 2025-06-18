@@ -111,7 +111,7 @@ Para probar la API, puedes importar la colección de Postman disponible en el re
 #### **4. Obtener una lista de todos los vuelos**
 **GET** `/api/flights` Obtiene una lista de todos los vuelos disponibles.
 
-**Respuesta: Respuesta: Un array de objetos con la información de cada vuelo.**
+**Respuesta: Un array de objetos con la información de cada vuelo.**
 ```json
 [
     {
@@ -204,7 +204,7 @@ o	Respuesta: Un mensaje indicando si el vuelo fue eliminado exitosamente.
 #### **9. Obtener una lista de todas las reservas**
 **GET** `/api/bookings` Obtiene una lista de todas las reservas disponibles.
 
-**Respuesta: Respuesta: Un array de objetos con la información de cada reserva.**
+**Respuesta: Un array de objetos con la información de cada reserva.**
 ```json
 [
     {
@@ -297,26 +297,21 @@ o	Respuesta: Un mensaje indicando si el vuelo fue eliminado exitosamente.
 
 ---
 
-#### **11. Actulizar la información de un vuelo existente**
-**PUT** `/api/flights/:id` Actualiza la información de un vuelo existente por su ID (requiere autenticación y rol de administrador).
+#### **11. Actualizar el estado de una reserva por su ID**
+**PUT** `/api/bookings/:id` Actualizar el estado de una reserva por su ID (requiere autenticación y rol de administrador).
 
-**Respuesta: Parámetro de la URL: id (UUID del vuelo). Cuerpo de la petición (JSON): (Puede contener cualquier campo del objeto reserva a actualizar). **
-```json
-{
-    "seat": "22C",
-    "total_price": "100.50",
-    "status": "confirmed"
-}
+**Respuesta: Parámetro de la URL: id (UUID de la reserva).**
 
-```
+**Respuesta: Un mensaje indicando si la reserva fue actualizada exitosamente.**
 
 ---
 
 #### **12. Eliminar una reserva por su ID**
-**DELETE** `/api/flights/:id` Elimina una reserva por su ID (requiere autenticación y rol de administrador).
-o	**Respuesta: Parámetro de la URL: id (UUID de la reserva).
-o	Respuesta: Un mensaje indicando si la reserva fue eliminada exitosamente.
+**DELETE** `/api/bookings/:id` Elimina una reserva por su ID (requiere autenticación y rol de administrador).
 
+**Respuesta: Parámetro de la URL: id (UUID de la reserva).**
+
+**Respuesta: Un mensaje indicando si la reserva fue eliminada exitosamente.**
 
 ---
 
