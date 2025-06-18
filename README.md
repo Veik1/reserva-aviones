@@ -10,6 +10,9 @@
 • Martín Alejandro Lamas
 ```
 
+## Presentación
+[![Ver video en YouTube](https://img.youtube.com/vi/xS5OnMAJAco/0.jpg)](https://www.youtube.com/watch?v=xS5OnMAJAco&ab_channel=FacundoMentoro)
+
 ## Requisitos
 
 • [vscode](https://code.visualstudio.com/download)
