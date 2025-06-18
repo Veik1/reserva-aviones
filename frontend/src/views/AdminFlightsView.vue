@@ -32,8 +32,8 @@
       <thead>
         <tr>
           <th>Número</th>
-          <th>Origen</th>
-          <th>Destino</th>
+          <th>Origen</th>      <!-- AÑADIR -->
+          <th>Destino</th>     <!-- AÑADIR -->
           <th>Salida</th>
           <th>Ofertas de Clase</th>
           <th>Acciones</th>
@@ -42,20 +42,20 @@
       <tbody>
         <tr v-for="flight in filteredFlights" :key="flight.id">
           <td>{{ flight.flight_number }}</td>
+          <!-- Añadir los iata_code aquí -->
           <td>
-            {{ flight.originAirport?.name || flight.origin || '-' }}
-            <span v-if="flight.originAirport?.city">({{ flight.originAirport.city.name }})</span>
+            {{ flight.originAirport?.city?.name || flight.originAirport?.name || 'N/A' }}
+            ({{ flight.originAirport?.iata_code || 'N/A' }}) <!-- AÑADIR -->
           </td>
           <td>
-            {{ flight.destinationAirport?.name || flight.destination || '-' }}
-            <span v-if="flight.destinationAirport?.city">({{ flight.destinationAirport.city.name }})</span>
+            {{ flight.destinationAirport?.city?.name || flight.destinationAirport?.name || 'N/A' }}
+            ({{ flight.destinationAirport?.iata_code || 'N/A' }}) <!-- AÑADIR -->
           </td>
           <td>{{ formatDate(flight.departure_time) }}</td>
           <td>
             <ul v-if="flight.offerings && flight.offerings.length > 0" class="offerings-summary">
               <li v-for="offering in flight.offerings.slice(0, 2)" :key="offering.id">
-                {{ offering.flightClass?.name }}: u$s{{ parseFloat(offering.price).toFixed(2) }} ({{
-                  offering.seats_available }} asientos)
+                {{ offering.flightClass?.name }}: u$s{{ parseFloat(offering.price).toFixed(2) }} ({{ offering.seats_available }} asientos)
               </li>
               <li v-if="flight.offerings.length > 2">... y {{ flight.offerings.length - 2 }} más</li>
             </ul>
@@ -63,7 +63,8 @@
           </td>
           <td class="actions-cell">
             <button @click="openEditForm(flight)" class="button is-small is-warning">Editar Vuelo</button>
-            <router-link :to="{ name: 'admin-flight-offerings', params: { flightId: flight.id } }"
+            <router-link
+              :to="{ name: 'admin-flight-offerings', params: { flightId: flight.id } }"
               class="button is-small is-info">
               Gestionar Ofertas
             </router-link>

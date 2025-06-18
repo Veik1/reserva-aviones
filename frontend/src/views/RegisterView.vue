@@ -98,8 +98,6 @@ const handleRegister = async () => {
       return;
     }
   } else {
-    // Decide si la fecha de nacimiento es obligatoria
-    // Si es obligatoria para reservar, debería serlo aquí o al menos advertir.
     errorMessage.value = 'La fecha de nacimiento es requerida.';
     loading.value = false;
     return;

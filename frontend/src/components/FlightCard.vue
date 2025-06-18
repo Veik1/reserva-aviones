@@ -1,34 +1,24 @@
 <template>
   <div class="flight-card">
     <div class="card-image-container" v-if="flight.image_url">
-      <img
-        :src="flight.image_url"
-        :alt="`Vuelo ${flight.flight_number} a ${flight.destinationAirport?.city?.name || ''}`"
-        class="flight-image"
-        @error="handleImageError"
-      />
+      <img :src="flight.image_url" :alt="`Vuelo ${flight.flight_number} a ${flight.destinationAirport?.city?.name || flight.destinationAirport?.name}`" class="flight-image" @error="handleImageError">
     </div>
     <div class="card-image-placeholder" v-else>
       <span>✈️</span>
     </div>
 
+    <!-- Sección de Texto -->
     <div class="card-content">
       <h3>{{ flight.flight_number }}</h3>
       <p>
-        <strong>Desde:</strong>
-        {{ flight.originAirport?.name || '-' }}
-        <span v-if="flight.originAirport?.iata_code">({{ flight.originAirport.iata_code }})</span>
-        <span v-if="flight.originAirport?.city">- {{ flight.originAirport.city.name }}</span>
+          <strong>Desde:</strong>
+          {{ flight.originAirport?.city?.name || flight.originAirport?.name || 'N/A' }}
+           ({{ flight.originAirport?.iata_code || 'N/A' }}) <!-- AÑADIDO IATA Code -->
       </p>
       <p>
-        <strong>Hasta:</strong>
-        {{ flight.destinationAirport?.name || '-' }}
-        <span v-if="flight.destinationAirport?.iata_code"
-          >({{ flight.destinationAirport.iata_code }})</span
-        >
-        <span v-if="flight.destinationAirport?.city"
-          >- {{ flight.destinationAirport.city.name }}</span
-        >
+          <strong>Hasta:</strong>
+            {{ flight.destinationAirport?.city?.name || flight.destinationAirport?.name || 'N/A' }}
+           ({{ flight.destinationAirport?.iata_code || 'N/A' }}) <!-- AÑADIDO IATA Code -->
       </p>
       <p><strong>Partida:</strong> {{ formatDate(flight.departure_time) }}</p>
       <p><strong>Llegada:</strong> {{ formatDate(flight.arrival_time) }}</p>
@@ -47,27 +37,27 @@
     </div>
 
     <div class="card-actions">
-      <router-link
-        v-if="flight.id"
-        :to="{ name: 'flight-details', params: { id: flight.id } }"
-        class="button is-small is-info"
-      >
-        Ver detalles y Clases
-      </router-link>
+        <router-link :to="{ name: 'flight-details', params: { id: flight.id } }" class="button is-small is-info">
+           Ver detalles y Clases
+        </router-link>
+        <!-- El botón de "Reservar ahora" se elimina de aquí -->
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { formatDate } from '@/utils/formatters'
+import { computed } from 'vue';
+import { useAuthStore } from '@/store/auth';
+import { formatDate } from '@/utils/formatters';
 
 const props = defineProps({
   flight: {
     type: Object,
     required: true,
   },
-})
+});
+
+const authStore = useAuthStore();
 
 const handleImageError = (event) => {
   if (event.target) event.target.style.display = 'none'
@@ -76,26 +66,23 @@ const handleImageError = (event) => {
 // Precio más bajo
 const lowestPrice = computed(() => {
   if (props.flight && props.flight.offerings && props.flight.offerings.length > 0) {
-    const prices = props.flight.offerings.map((offering) => parseFloat(offering.price))
-    return Math.min(...prices)
+    const prices = props.flight.offerings.map(offering => parseFloat(offering.price));
+    return Math.min(...prices);
   }
-  return null
-})
+  return null;
+});
 
 // Clases disponibles
 const availableClasses = computed(() => {
   if (props.flight && props.flight.offerings && props.flight.offerings.length > 0) {
-    return [
-      ...new Set(
-        props.flight.offerings.map((offering) => offering.flightClass?.name).filter((name) => name),
-      ),
-    ]
+    return [...new Set(props.flight.offerings.map(offering => offering.flightClass?.name).filter(name => name))];
   }
   return []
 })
 </script>
 
 <style scoped>
+/* Estilos - Reutilizar los que tenías y que no dependen de información directa de airport/city */
 .flight-card {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -184,19 +171,9 @@ const availableClasses = computed(() => {
   gap: 10px;
   margin-top: auto;
 }
+.button.is-small { padding: 6px 12px; font-size: 0.8em; }
+.button.is-info { background-color: #3498db; color: white; border: none; }
+/* Eliminado el estilo .button.is-success si ya no se usa aquí */
+.button:hover { opacity: 0.85; }
 
-.button.is-small {
-  padding: 6px 12px;
-  font-size: 0.8em;
-}
-
-.button.is-info {
-  background-color: #3498db;
-  color: white;
-  border: none;
-}
-
-.button:hover {
-  opacity: 0.85;
-}
 </style>

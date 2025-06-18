@@ -13,10 +13,9 @@ const bookingRoutes = require("./routes/booking.routes.js");
 // --- NUEVA IMPORTACIÓN DE RUTA ---
 const flightOfferingRoutes = require("./routes/flightoffering.routes.js"); // Asegúrate que el path sea correcto
 const flightClassRoutes = require("./routes/flightclass.routes.js");
-// rutas de ciudades y aeropuertos
+// --- NUEVAS IMPORTACIONES DE RUTA ---
 const cityRoutes = require("./routes/city.routes.js");
 const airportRoutes = require("./routes/airport.routes.js");
-
 
 
 const app = express();
@@ -60,8 +59,9 @@ app.use("/api/bookings", bookingRoutes);
 // --- AÑADIR USO DE NUEVA RUTA ---
 app.use("/api/flightofferings", flightOfferingRoutes);
 app.use("/api/flightclasses", flightClassRoutes);
-app.use("/api", cityRoutes);
-app.use("/api", airportRoutes);
+// --- AÑADIR USO DE NUEVAS RUTAS ---
+app.use("/api/cities", cityRoutes);
+app.use("/api/airports", airportRoutes);
 
 // Middleware para manejar errores de JSON malformado (opcional pero bueno)
 app.use((err, req, res, next) => {

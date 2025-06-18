@@ -72,6 +72,12 @@ export const deleteFlightOffering = (offeringId) => apiClient.delete(`/flightoff
 // --- FlightClass Service (NUEVO) ---
 export const fetchFlightClasses = () => apiClient.get('/flightclasses');
 
+// --- City Service (NUEVO) ---
+export const fetchCities = () => apiClient.get('/cities');
+
+// --- Airport Service (NUEVO) ---
+export const fetchAirports = (params) => apiClient.get('/airports', { params }); // params puede ser { cityId: '...' } o { search: '...' }
+
 // --- Booking Service ---
 export const createBooking = (bookingData) => apiClient.post('/bookings', bookingData); // Needs user/admin token
 export const fetchBookings = () => apiClient.get('/bookings'); // Needs admin token
@@ -81,5 +87,7 @@ export const fetchMyBookings = () => apiClient.get('/bookings/my'); // Para usua
 export const fetchBookingById = (id) => apiClient.get(`/bookings/${id}`); // Needs user/admin token
 export const updateBooking = (id, bookingData) => apiClient.put(`/bookings/${id}`, bookingData); // Needs user/admin token
 export const deleteBooking = (id) => apiClient.delete(`/bookings/${id}`); // Needs admin token
+
+export const fetchSeatsByOffering = (offeringId) => apiClient.get(`/flightofferings/${offeringId}/seats`);
 
 export default apiClient; // Export the configured instance

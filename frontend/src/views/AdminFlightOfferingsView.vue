@@ -3,7 +3,21 @@
     <div v-if="loadingFlightDetails" class="loading">Cargando detalles del vuelo...</div>
     <div v-else-if="flight">
       <h2>Gestionar Ofertas para Vuelo: {{ flight.flight_number }}</h2>
-      <p class="flight-route">{{ flight.origin }} → {{ flight.destination }}</p>
+      <p class="flight-route">
+        {{
+          flight.originAirport?.city?.name ||
+          flight.originAirport?.name ||
+          'N/A'
+        }}
+        ({{ flight.originAirport?.iata_code || '' }})
+        →
+        {{
+          flight.destinationAirport?.city?.name ||
+          flight.destinationAirport?.name ||
+          'N/A'
+        }}
+        ({{ flight.destinationAirport?.iata_code || '' }})
+      </p>
 
       <AlertMessage v-if="error" type="error" :message="error" />
       <AlertMessage v-if="success" type="success" :message="success" />

@@ -19,18 +19,13 @@
       <!-- Encabezado e Información General -->
       <div class="details-header">
         <h2>Vuelo {{ flight.flight_number }}</h2>
+
         <p class="route-info">
-          {{ flight.originAirport?.name || '-' }}
-          <span v-if="flight.originAirport?.iata_code">({{ flight.originAirport.iata_code }})</span>
-          <span v-if="flight.originAirport?.city">- {{ flight.originAirport.city.name }}</span>
-          &nbsp;→&nbsp;
-          {{ flight.destinationAirport?.name || '-' }}
-          <span v-if="flight.destinationAirport?.iata_code"
-            >({{ flight.destinationAirport.iata_code }})</span
-          >
-          <span v-if="flight.destinationAirport?.city"
-            >- {{ flight.destinationAirport.city.name }}</span
-          >
+          {{ flight.originAirport?.city?.name || flight.originAirport?.name || 'N/A' }}
+          ({{ flight.originAirport?.iata_code || 'N/A' }}) <!-- AÑADIR -->
+          →
+          {{ flight.destinationAirport?.city?.name || flight.destinationAirport?.name || 'N/A' }}
+          ({{ flight.destinationAirport?.iata_code || 'N/A' }}) <!-- AÑADIR -->
         </p>
       </div>
       <div class="details-body general-info-body">

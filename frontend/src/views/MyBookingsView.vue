@@ -33,7 +33,13 @@
               </div>
                <div class="info-item">
                 <span class="info-label">Ruta</span>
-                <span class="info-value">{{ booking.flightOffering?.flight?.origin || 'N/A' }} → {{ booking.flightOffering?.flight?.destination || 'N/A' }}</span>
+                <span class="info-value">
+                        {{ booking.flightOffering?.flight?.originAirport?.city?.name || booking.flightOffering?.flight?.originAirport?.name || 'N/A' }}
+                         ({{ booking.flightOffering?.flight?.originAirport?.iata_code || '' }})
+                         →
+                        {{ booking.flightOffering?.flight?.destinationAirport?.city?.name || booking.flightOffering?.flight?.destinationAirport?.name || 'N/A' }}
+                      ({{ booking.flightOffering?.flight?.destinationAirport?.iata_code || '' }})
+                </span>
               </div>
               <div class="info-item">
                 <span class="info-label">Salida</span>
@@ -54,7 +60,10 @@
             <div class="info-grid">
                <div class="info-item">
                 <span class="info-label">Asiento</span>
-                <span class="info-value">{{ booking.seat }}</span>
+                <span class="info-value" v-if="booking.seats && booking.seats.length > 0">
+                  {{ booking.seats.map(s => s.seat_number).join(', ') }}
+                </span>
+                <span class="info-value" v-else>N/A</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Pasajero</span>
