@@ -1,0 +1,905 @@
+{
+	"info": {
+		"_postman_id": "544ad62e-0e12-47d7-8dd2-1fb2c0ae7c1d",
+		"name": "vuela-alto",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36259252"
+	},
+	"item": [
+		{
+			"name": "Autenticación",
+			"item": [
+				{
+					"name": "Registrar un nuevo usuario",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Martincho\",\r\n    \"email\": \"correo@ejemplo.com\",\r\n    \"password\": \"contraseña123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Iniciar sesión de un usuario existente y obtener un token JWT",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"correo@ejemplo.com\",\r\n    \"password\": \"contraseña123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Vuelos",
+			"item": [
+				{
+					"name": "Crear un nuevo vuelo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n{\r\n  \"flight_number\": \"FL1234\",\r\n  \"departure_time\": \"2025-07-01T14:00:00Z\",\r\n  \"arrival_time\": \"2025-07-01T18:00:00Z\",\r\n  \"origin_airport_id\": \"5679ede1-2b3c-486e-8a27-78d15e45c072\",\r\n  \"destination_airport_id\": \"45ebfd99-9c9d-45fe-b7c8-3b8cc2812d55\"\r\n \r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flights",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flights"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener una lista de todos los vuelos",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flightNumber\": \"AV001\",\r\n    \"origin\": \"Buenos Aires\",\r\n    \"destination\": \"Córdoba\",\r\n    \"departureTime\": \"2025-04-15T10:00:00.000Z\",\r\n    \"arrivalTime\": \"2025-04-15T11:30:00.000Z\",\r\n    \"seatsAvailable\": 100,\r\n    \"price\": 150.50\r\n}\r\n\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flights",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flights"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener un vuelo específico por su ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flightNumber\": \"AV001\",\r\n    \"origin\": \"Buenos Aires\",\r\n    \"destination\": \"Córdoba\",\r\n    \"departureTime\": \"2025-04-15T10:00:00.000Z\",\r\n    \"arrivalTime\": \"2025-04-15T11:30:00.000Z\",\r\n    \"seatsAvailable\": 100,\r\n    \"price\": 150.50\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flights/9822a54e-00a7-4a74-ba94-3b7acdf9b775",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flights",
+								"9822a54e-00a7-4a74-ba94-3b7acdf9b775"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar la información de un vuelo existente por su ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"flight_number\": \"FL1234\",\r\n  \"departure_time\": \"2025-07-01T14:00:00Z\",\r\n  \"arrival_time\": \"2025-07-01T18:00:00Z\",\r\n  \"origin_airport_id\": \"5679ede1-2b3c-486e-8a27-78d15e45c072\",\r\n  \"destination_airport_id\": \"e3ca7eaf-c70e-429b-a48d-47d182bf197a\"\r\n \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flights/a0968c5a-e741-4935-8e7a-e8ec87d7561c",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flights",
+								"a0968c5a-e741-4935-8e7a-e8ec87d7561c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar un vuelo por su ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\r\n{\r\n  \"flight_number\": \"FL1234\",\r\n  \"departure_time\": \"2025-07-01T14:00:00Z\",\r\n  \"arrival_time\": \"2025-07-01T18:00:00Z\",\r\n  \"origin_airport_id\": \"5679ede1-2b3c-486e-8a27-78d15e45c072\",\r\n  \"destination_airport_id\": \"45ebfd99-9c9d-45fe-b7c8-3b8cc2812d55\"\r\n \r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flights/aee569b4-7284-4f6f-9f77-8ec97ac8db86",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flights",
+								"aee569b4-7284-4f6f-9f77-8ec97ac8db86"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reservas",
+			"item": [
+				{
+					"name": "Crear una nueva reserva",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"flight_offering_id\": \"3e777ce6-6de5-4ad4-92e0-3227ad8fc82b\",\r\n  \"seat_ids\": [\r\n    \r\n    \"e6be44b0-b392-4538-b002-814de96c33ad\"\r\n  ],\r\n  \"passenger_name\": \"Administrador \",\r\n  \"passenger_last_name\": \"Principal\",\r\n  \"passenger_email\": \"admin@example.com\"\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/bookings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener una lista de todas las reservas",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flightId\": \"ID del vuelo existente\",\r\n    \"userId\": \"ID del usuario existente\",\r\n    \"seat\": \"12A\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/bookings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener una reserva específica por su ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"flightId\": \"ID del vuelo existente\",\r\n    \"userId\": \"ID del usuario existente\",\r\n    \"seat\": \"12A\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/bookings/3aec687c-33d5-4aeb-ac1f-eb35510b8d15",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"bookings",
+								"3aec687c-33d5-4aeb-ac1f-eb35510b8d15"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar el estado de una reserva",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"status\": \"pending\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/bookings/3aec687c-33d5-4aeb-ac1f-eb35510b8d15",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"bookings",
+								"3aec687c-33d5-4aeb-ac1f-eb35510b8d15"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar una reserva por su ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"canceled\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/bookings/3aec687c-33d5-4aeb-ac1f-eb35510b8d15",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"bookings",
+								"3aec687c-33d5-4aeb-ac1f-eb35510b8d15"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "OfertaVuelo",
+			"item": [
+				{
+					"name": "Obtener oferta Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flightofferings/flight/8402afb6-30cc-47d3-919c-1e1692f4cdae",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flightofferings",
+								"flight",
+								"8402afb6-30cc-47d3-919c-1e1692f4cdae"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nueva oferta",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"flight_id\": \"a0968c5a-e741-4935-8e7a-e8ec87d7561c\",\r\n  \"flight_class_id\": \"8ed5fa4c-3878-4c60-be1b-d41725198052\",\r\n  \"seats_available\": 14,\r\n  \"price\": 500.00\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flightofferings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flightofferings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Oferta",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"flight_id\": \"8402afb6-30cc-47d3-919c-1e1692f4cdae\",\r\n  \"flight_class_id\": \"0daf0b07-3c87-41f4-93fb-ed8eae905b34\",\r\n  \"seats_available\": 9,\r\n  \"price\": 4220.00\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/flightofferings/d109bd31-f54f-4039-a964-da65e69a2749",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flightofferings",
+								"d109bd31-f54f-4039-a964-da65e69a2749"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar oferta Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/flightofferings/c477622d-bc6f-4223-b524-4b5402a95f37",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"flightofferings",
+								"c477622d-bc6f-4223-b524-4b5402a95f37"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Aeropuerto",
+			"item": [
+				{
+					"name": "Obtener todos los aeropuertos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/airports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"airports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nuevo aeropuerto",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Aeropuerto Internacional de Moscú-Sheremétievo\",\r\n    \"iata_code\": \"MS\",\r\n    \"city_id\": \"87d638e4-c6ff-4c3e-ba66-91f03c612703\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/airports",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"airports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar aeropuerto por Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Aeropuerto Internacional de Moscú-Sheremétievo\",\r\n    \"iata_code\": \"RS\",\r\n    \"city_id\": \"87d638e4-c6ff-4c3e-ba66-91f03c612703\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/airports/62570380-05b8-4f08-a01c-8e5fc1c450f2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"airports",
+								"62570380-05b8-4f08-a01c-8e5fc1c450f2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Borrar aeropuerto por Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/airports/62570380-05b8-4f08-a01c-8e5fc1c450f2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"airports",
+								"62570380-05b8-4f08-a01c-8e5fc1c450f2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ciudad",
+			"item": [
+				{
+					"name": "Obtener ciudad",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/cities",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"cities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nueva ciudad",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"name\": \"Moscu\",\r\n        \"country_code\": \"RS\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/cities",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"cities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar ciudad por Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"name\": \"Moscu\",\r\n        \"country_code\": \"RS\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/cities/642f71c6-26a7-4dd8-ab25-95864466ed90",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"cities",
+								"642f71c6-26a7-4dd8-ab25-95864466ed90"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Borrar ciudad por Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjI1ODhjNWJjLTJmMDYtNDBjMy1hNTdhLTMwNWM3NjVjOTIxMiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1MDI2NDg4NCwiZXhwIjoxNzUwMzUxMjg0fQ.cQ3XVwfBmCx7WiUE4fXYfwpKZQpCSQyQ65Y3rNpbw1k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/api/cities/642f71c6-26a7-4dd8-ab25-95864466ed90",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"cities",
+								"642f71c6-26a7-4dd8-ab25-95864466ed90"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
